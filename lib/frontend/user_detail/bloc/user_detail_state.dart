@@ -40,3 +40,18 @@ class UserDetalsExistsFailed extends UserDetailState {
   @override
   List<Object> get props => [];
 }
+
+class GetUserPartners extends UserDetailState {
+  final List<dynamic> partner;
+
+  const GetUserPartners({required this.partner});
+  @override
+  List<Object> get props => [partner];
+}
+
+class GetUserPartnersFailed extends UserDetailState {
+  final String message;
+  const GetUserPartnersFailed({required this.message});
+  @override
+  List<Object> get props => [message];
+}

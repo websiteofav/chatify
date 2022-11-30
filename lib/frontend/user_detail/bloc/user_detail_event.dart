@@ -35,3 +35,11 @@ class UserRecordEvent extends UserDetailEvent {
   @override
   List<Object> get props => [];
 }
+
+class FetchUserPartnersEvent extends UserDetailEvent {
+  final String email;
+  const FetchUserPartnersEvent({required this.email});
+
+  @override
+  List<Object> get props => [email];
+}

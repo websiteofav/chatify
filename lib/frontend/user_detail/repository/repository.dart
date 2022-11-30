@@ -43,6 +43,7 @@ class UserRepository {
         "bio": bio,
         "activities": [],
         "partners": [],
+        "partner_requests": [],
         'creation_date': currentDate,
         'creation_time': currentTime,
         'mobile_number': '',
@@ -77,6 +78,33 @@ class UserRepository {
     } catch (e) {
       debugPrint(e.toString());
       return UserDetailsRecordsResults.genericeError;
+    }
+  }
+
+  Future<dynamic> _getCurrentUserData({required email}) async {
+    try {
+      final currentUserData = await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$email')
+          .get();
+
+      return currentUserData.data();
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List<dynamic>> currentUserPartners({
+    required email,
+  }) async {
+    try {
+      final currentUserData = await _getCurrentUserData(email: email);
+      final paretnerRequests = currentUserData["partner_requests"];
+
+      return paretnerRequests;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
     }
   }
 }

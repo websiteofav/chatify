@@ -68,6 +68,22 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
 
           emit(const UserDetailError(message: 'Something went wrong'));
         }
+      } else if (event is FetchUserPartnersEvent) {
+        emit(UserDetailLoading());
+        try {
+          List partners =
+              await repository.currentUserPartners(email: event.email);
+
+          if (partners.isEmpty) {
+            emit(const GetUserPartnersFailed(message: 'No partners found'));
+          } else {
+            emit(GetUserPartners(partner: partners));
+          }
+        } catch (e) {
+          debugPrint(e.toString());
+
+          emit(const UserDetailError(message: 'No partners found'));
+        }
       }
     });
   }
