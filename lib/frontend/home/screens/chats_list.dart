@@ -17,93 +17,102 @@ class ChatList extends StatefulWidget {
 class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: 20,
-      separatorBuilder: ((context, index) {
-        return SizedBox(
-          height: 5,
-        );
-      }),
-      shrinkWrap: true,
-      itemBuilder: ((context, index) {
-        return Card(
-          color: AppColors.backgroundColor1,
-          elevation: 12,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  // height: 50,
-                  padding: EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: AppColors.textColor4,
-                    shape: BoxShape.circle,
-                    // borderRadius: BorderRadius.circular(15)
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.balck),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10.0),
+          topRight: Radius.circular(10.0),
+        ),
+      ),
+      child: ListView.separated(
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: 20,
+        separatorBuilder: ((context, index) {
+          return SizedBox(
+            height: 5,
+          );
+        }),
+        shrinkWrap: true,
+        itemBuilder: ((context, index) {
+          return Card(
+            color: AppColors.backgroundColor1,
+            elevation: 12,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    // height: 50,
+                    padding: EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: AppColors.textColor4,
+                      shape: BoxShape.circle,
+                      // borderRadius: BorderRadius.circular(15)
+                    ),
+                    child: Text(
+                      'A',
+                      style: TextStyle(color: AppColors.balck, fontSize: 25),
+                    ),
                   ),
-                  child: Text(
-                    'A',
-                    style: TextStyle(color: AppColors.balck, fontSize: 25),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 8.0, left: 20, bottom: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Shivam',
+                          style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: Text(
+                            'How are you?',
+                            style: TextStyle(
+                                color: AppColors.textColor2,
+                                overflow: TextOverflow.ellipsis,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(top: 8.0, left: 20, bottom: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Spacer(),
+                  Column(
                     children: [
-                      Text(
-                        'Shivam',
-                        style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
+                      Icon(
+                        Icons.notifications,
+                        color: AppColors.white,
                       ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Flexible(
-                        fit: FlexFit.loose,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 18),
                         child: Text(
-                          'How are you?',
+                          '10h',
                           style: TextStyle(
                               color: AppColors.textColor2,
-                              overflow: TextOverflow.ellipsis,
                               fontSize: 14,
                               fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
                   ),
-                ),
-                Spacer(),
-                Column(
-                  children: [
-                    Icon(
-                      Icons.notifications,
-                      color: AppColors.white,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 18),
-                      child: Text(
-                        '10h',
-                        style: TextStyle(
-                            color: AppColors.textColor2,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }

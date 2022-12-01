@@ -2,6 +2,7 @@
 
 import 'package:animations/animations.dart';
 import 'package:chat_app/frontend/auth/bloc/auth_bloc.dart';
+import 'package:chat_app/frontend/connections/search_connections.dart';
 import 'package:chat_app/frontend/home/screens/chatrooms.dart';
 import 'package:chat_app/frontend/home/screens/chats_list.dart';
 import 'package:chat_app/frontend/home/screens/user_calls.dart';
@@ -253,17 +254,38 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Expanded(
                     flex: 1,
-                    child: Material(
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                      elevation: 12,
-                      child: Container(
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundColor3,
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                        ),
-                        child:
-                            Icon(Icons.add, color: AppColors.white, size: 30),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Material(
+                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                        elevation: 12,
+                        child: OpenContainer(
+                            openColor: AppColors.backgroundColor1,
+                            closedColor: AppColors.backgroundColor1,
+                            transitionType: ContainerTransitionType.fadeThrough,
+                            transitionDuration: Duration(milliseconds: 500),
+                            openElevation: 15,
+                            openBuilder: (context, openWidget) {
+                              return SearchConnections();
+                            },
+
+                            // height: 60,
+                            // decoration: BoxDecoration(
+                            //   color: AppColors.backgroundColor3,
+                            //   borderRadius: BorderRadius.all(Radius.circular(12)),
+                            // ),
+                            closedBuilder: (context, closedWidget) {
+                              return Container(
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: AppColors.backgroundColor3,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(12)),
+                                ),
+                                child: Icon(Icons.add,
+                                    color: AppColors.white, size: 30),
+                              );
+                            }),
                       ),
                     ),
                   ),

@@ -37,7 +37,7 @@ class _SplashState extends State<Splash> {
             ),
           );
         } else if (state is UserDetailError) {
-          if (state.toString().contains('user')) {
+          if (state.message.contains('user')) {
             Navigator.push(
               context,
               MaterialPageRoute(

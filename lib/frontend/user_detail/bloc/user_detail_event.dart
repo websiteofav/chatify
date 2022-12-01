@@ -35,3 +35,10 @@ class UserRecordEvent extends UserDetailEvent {
   @override
   List<Object> get props => [];
 }
+
+class GetAllUUsersEvent extends UserDetailEvent {
+  const GetAllUUsersEvent();
+
+  @override
+  List<Object> get props => [];
+}

@@ -1,3 +1,5 @@
+import 'package:chat_app/frontend/home/models/user_primary_details.dart';
+import 'package:chat_app/frontend/user_detail/models/user_detail.dart';
 import 'package:chat_app/frontend/utils/constants.dart';
 import 'package:chat_app/frontend/utils/enums.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -77,6 +79,47 @@ class UserRepository {
     } catch (e) {
       debugPrint(e.toString());
       return UserDetailsRecordsResults.genericeError;
+    }
+  }
+
+  Future<Map<String, dynamic>> getFirebaseToken(email) async {
+    try {
+      final user = await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$email')
+          .get();
+
+      final Map<String, dynamic> data = Map<String, dynamic>();
+
+      data["token"] = user.data()!["token"];
+      data["creation_date"] = user.data()!["creation_date"];
+
+      data["creation_time"] = user.data()!["creation_time"];
+
+      return data;
+    } catch (e) {
+      e.toString();
+      rethrow;
+    }
+  }
+
+  Future<List<UserDetailsModel>> getAllUsers() async {
+    try {
+      final users = await FirebaseFirestore.instance
+          .collection(Constants.userDetailCollectionName)
+          .get();
+
+      List<UserDetailsModel> model = [];
+
+      debugPrint(users.toString());
+
+      users.docs.map((e) {
+        model.add(UserDetailsModel.fromJson(e.data()));
+      }).toList();
+
+      return model;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
     }
   }
 }

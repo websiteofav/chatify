@@ -54,7 +54,7 @@ class _SignUpState extends State<SignUp> {
           Navigator.popAndPushNamed(context, '/login');
         } else if (state is GoogleSignInLoaded) {
           _loadingOverlay.hide();
-          Navigator.popAndPushNamed(context, '/home');
+          Navigator.popAndPushNamed(context, '/about');
         } else if (state is AuthError) {
           _loadingOverlay.hide();
           CoolAlert.show(

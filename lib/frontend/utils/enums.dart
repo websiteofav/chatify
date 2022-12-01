@@ -33,3 +33,8 @@ enum UserDetailsRecordsResults {
   detailsNotFound,
   genericeError,
 }
+
+enum UserActivityMediaTypes {
+  text,
+  image,
+}

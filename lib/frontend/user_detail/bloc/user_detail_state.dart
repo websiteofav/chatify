@@ -40,3 +40,19 @@ class UserDetalsExistsFailed extends UserDetailState {
   @override
   List<Object> get props => [];
 }
+
+class GetAllUsers extends UserDetailState {
+  final List<UserDetailsModel> model;
+
+  const GetAllUsers({required this.model});
+  @override
+  List<Object> get props => [];
+}
+
+class GetAllUsersFailed extends UserDetailState {
+  final String message;
+
+  const GetAllUsersFailed({required this.message});
+  @override
+  List<Object> get props => [];
+}

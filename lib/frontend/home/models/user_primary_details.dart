@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class UserPrimaryFields {
   static const String username = "username";
   static const String email = "email";
@@ -31,28 +33,28 @@ class UserPrimaryModel {
   final String? userName;
   final String email;
   final String? bio;
-  final String token;
+  String? token;
   final String profileImagePath;
   final String profileImageURL;
   final String notifications;
   final String wallpaper;
   final String mobileNumber;
 
-  final String accountCreationDate;
+  String? accountCreationDate;
 
-  final String accountCreationTime;
+  String? accountCreationTime;
 
-  const UserPrimaryModel({
+  UserPrimaryModel({
     this.bio,
     required this.email,
     required this.notifications,
     required this.profileImagePath,
     required this.profileImageURL,
-    required this.token,
+    this.token,
     this.userName,
     required this.wallpaper,
-    required this.accountCreationDate,
-    required this.accountCreationTime,
+    this.accountCreationDate,
+    this.accountCreationTime,
     required this.mobileNumber,
   });
 

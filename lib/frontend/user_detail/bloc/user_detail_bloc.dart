@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat_app/frontend/auth/bloc/auth_bloc.dart';
+import 'package:chat_app/frontend/home/models/user_primary_details.dart';
+import 'package:chat_app/frontend/user_detail/models/user_detail.dart';
 import 'package:chat_app/frontend/user_detail/repository/repository.dart';
 import 'package:chat_app/frontend/utils/enums.dart';
 import 'package:equatable/equatable.dart';
@@ -67,6 +69,21 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
           debugPrint(e.toString());
 
           emit(const UserDetailError(message: 'Something went wrong'));
+        }
+      } else if (event is GetAllUUsersEvent) {
+        emit(UserDetailLoading());
+        try {
+          List<UserDetailsModel> users = await repository.getAllUsers();
+
+          if (users.isEmpty) {
+            emit(const GetAllUsersFailed(message: 'No users found'));
+          } else {
+            emit(GetAllUsers(model: users));
+          }
+        } catch (e) {
+          debugPrint(e.toString());
+
+          emit(const GetAllUsersFailed(message: 'No users found'));
         }
       }
     });

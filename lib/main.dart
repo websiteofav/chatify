@@ -3,6 +3,8 @@ import 'package:chat_app/frontend/auth/repository/repository.dart';
 import 'package:chat_app/frontend/auth/screens/login.dart';
 import 'package:chat_app/frontend/auth/screens/signup.dart';
 import 'package:chat_app/frontend/auth/screens/splash.dart';
+import 'package:chat_app/frontend/home/bloc/home_bloc.dart';
+import 'package:chat_app/frontend/home/repository/repository.dart';
 import 'package:chat_app/frontend/home/screens/homepage.dart';
 import 'package:chat_app/frontend/user_detail/bloc/user_detail_bloc.dart';
 import 'package:chat_app/frontend/user_detail/repository/repository.dart';
@@ -47,6 +49,11 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(
           create: (context) => UserDetailBloc(
             repository: UserRepository(),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => HomeBloc(
+            repository: HomeRepository(),
           ),
         ),
       ],

@@ -1,21 +1,111 @@
-// // ignore_for_file: non_constant_identifier_names
+import 'package:intl/intl.dart';
 
-// class UserDetails {
+class UserDetailsFields {
+  static const String username = "username";
+  static const String activities = "activities";
 
-  
-  
+  static const String bio = "bio";
 
-//   UserDetails({this.status, this.error, this.success});
+  static const String token = "token";
+  static const String partners = "partners";
+  static const String profilePic = "profile_pic";
+  static const String totalPartners = "total_partners";
+  static const String mobileNumber = "mobile_number";
 
-//   UserDetails.fromJson(Map<String, dynamic> json) {
-//     status = json["Status"];
-//     error = json["Error"];
-//     if (json['Success'] != null) {
-//       success = <UserDetailsSuccess>[];
-//       json['Success'].forEach((v) {
-//         success!.add(new UserDetailsSuccess.fromJson(v));
-//       });
-//     }
-//   }
-// }
+  static const String accountCreationDate = "creation_date";
 
+  static const String accountCreationTime = "creation_time";
+
+  //  "bio": bio,
+  //       "activities": [],
+  //       "partners": [],
+  //       'creation_date': currentDate,
+  //       'creation_time': currentTime,
+  //       'mobile_number': '',
+  //       'profile_pic': '',
+  //       'token': token,
+  //       'total_partners': '',
+  //       'username': username
+
+  static final List<String> values = [
+    username,
+    bio,
+    token,
+    accountCreationDate,
+    accountCreationDate,
+    activities,
+    mobileNumber,
+    totalPartners,
+    partners,
+    profilePic
+  ];
+}
+
+class UserDetailsModel {
+  final String? userName;
+  final List activities;
+  final String? bio;
+  String? token;
+  final String totalPartners;
+  final List partners;
+  final String profilePic;
+  final String mobileNumber;
+
+  String? accountCreationDate;
+
+  String? accountCreationTime;
+
+  UserDetailsModel({
+    this.bio,
+    required this.activities,
+    required this.partners,
+    required this.profilePic,
+    required this.totalPartners,
+    this.token,
+    this.userName,
+    this.accountCreationDate,
+    this.accountCreationTime,
+    required this.mobileNumber,
+  });
+
+  Map<String, Object?> toJson() => {
+        UserDetailsFields.username: userName,
+        UserDetailsFields.bio: bio,
+        UserDetailsFields.activities: activities,
+        UserDetailsFields.partners: partners,
+        UserDetailsFields.totalPartners: totalPartners,
+        UserDetailsFields.profilePic: profilePic,
+        UserDetailsFields.token: token,
+        UserDetailsFields.accountCreationDate: accountCreationDate,
+        UserDetailsFields.accountCreationTime: accountCreationTime,
+        UserDetailsFields.mobileNumber: mobileNumber,
+      };
+
+  static UserDetailsModel fromJson(Map<String, Object?> json) =>
+      UserDetailsModel(
+          userName: json[UserDetailsFields.username] as String?,
+          bio: json[UserDetailsFields.bio] as String,
+          activities: json[UserDetailsFields.activities] as List,
+          partners: json[UserDetailsFields.partners] as List,
+          profilePic: json[UserDetailsFields.profilePic] as String,
+          totalPartners: json[UserDetailsFields.totalPartners] as String,
+          token: json[UserDetailsFields.token] as String,
+          accountCreationDate:
+              json[UserDetailsFields.accountCreationDate] as String,
+          accountCreationTime:
+              json[UserDetailsFields.accountCreationTime] as String,
+          mobileNumber: json[UserDetailsFields.mobileNumber] as String);
+
+  UserDetailsModel copy({String? userName}) => UserDetailsModel(
+        userName: userName ?? this.userName,
+        activities: activities,
+        partners: partners,
+        profilePic: profilePic,
+        totalPartners: totalPartners,
+        token: token,
+        bio: bio,
+        accountCreationDate: accountCreationDate,
+        accountCreationTime: accountCreationTime,
+        mobileNumber: mobileNumber,
+      );
+}
