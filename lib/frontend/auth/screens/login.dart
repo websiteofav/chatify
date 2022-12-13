@@ -100,13 +100,15 @@ class _LoginState extends State<Login> {
                   BlocProvider.of<UserDetailBloc>(context).add(
                     const UserRecordEvent(),
                   );
-                } else if (state is AuthError) {
+                } else if (state is LoginError) {
                   _loadingOverlay.hide();
                   CoolAlert.show(
                     context: context,
                     type: CoolAlertType.error,
                     text: state.message,
                   );
+                } else {
+                  _loadingOverlay.hide();
                 }
               },
               child: Container(
@@ -205,8 +207,8 @@ class _LoginState extends State<Login> {
                               TextSpan(
                                   text: ' SignUp',
                                   recognizer: TapGestureRecognizer()
-                                    ..onTap = () =>
-                                        Navigator.pushNamed(context, '/signup'),
+                                    ..onTap = () => Navigator.popAndPushNamed(
+                                        context, '/signup'),
                                   style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,

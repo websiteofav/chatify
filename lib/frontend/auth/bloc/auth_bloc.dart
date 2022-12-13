@@ -50,10 +50,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                 : auth == EmailLoginResults.emailNotVerified
                     ? 'Email Not verified. \n Please verify. Dont forget to check your spam mail'
                     : 'Login Failed';
-            emit(AuthError(message: message));
+            emit(LoginError(message: message));
           }
         } catch (e) {
-          emit(AuthError(message: 'Invalid User Details'));
+          emit(LoginError(message: 'Invalid User Details'));
         }
       } else if (event is LogoutEvent) {
         emit(AuthLoading());

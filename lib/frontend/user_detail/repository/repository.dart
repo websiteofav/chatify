@@ -42,16 +42,18 @@ class UserRepository {
       await FirebaseFirestore.instance
           .doc('${Constants.userDetailCollectionName}/$email')
           .set({
-        "bio": bio,
-        "activities": [],
-        "partners": [],
-        'creation_date': currentDate,
-        'creation_time': currentTime,
-        'mobile_number': '',
-        'profile_pic': '',
-        'token': token,
-        'total_partners': '',
-        'username': username
+        UserDetailsFields.bio: bio,
+        UserDetailsFields.activities: [],
+        UserDetailsFields.partners: [],
+        UserDetailsFields.accountCreationDate: currentDate,
+        UserDetailsFields.accountCreationTime: currentTime,
+        UserDetailsFields.mobileNumber: '',
+        UserDetailsFields.profilePic: '',
+        UserDetailsFields.token: token,
+        UserDetailsFields.totalPartners: '',
+        UserDetailsFields.username: username,
+        UserDetailsFields.partnerRequests: [],
+        UserDetailsFields.email: email
       });
 
       return UserDetailsAddedResults.detailAdded;
@@ -110,13 +112,92 @@ class UserRepository {
 
       List<UserDetailsModel> model = [];
 
-      debugPrint(users.toString());
+      debugPrint(users.docs.toString());
 
       users.docs.map((e) {
-        model.add(UserDetailsModel.fromJson(e.data()));
+        if (e.id != FirebaseAuth.instance.currentUser!.email.toString()) {
+          model.add(UserDetailsModel.fromJson(e.data()));
+        }
       }).toList();
 
       return model;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<dynamic> _getCurrentUserData({required email}) async {
+    try {
+      final currentUserData = await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$email')
+          .get();
+
+      return currentUserData.data();
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List> currentUserPartners({
+    required email,
+  }) async {
+    try {
+      final currentUserData = await _getCurrentUserData(email: email);
+      final List paretnerRequests = currentUserData["partner_requests"];
+
+      return paretnerRequests;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<List> changePartnerStatus({
+    required partnerEmail,
+    required userEmail,
+    required partnerUpdateStatus,
+    required List userPartnerUpdateList,
+  }) async {
+    try {
+      final docs = await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$partnerEmail')
+          .get();
+
+      final docSnap = docs.data();
+      final partnerRequests = docSnap!["partner_requests"];
+      int index = -1;
+
+      partnerRequests.map(
+        ((e) {
+          if (e.keys.first.toString() == userEmail) {
+            index = partnerRequests.indexOf(e);
+          }
+        }),
+      ).toList();
+
+      // docSnap["partner_requests"] = paretnerRequests;
+
+      if (index > -1) {
+        partnerRequests.removeAt(index);
+      }
+      partnerRequests.add({userEmail: partnerUpdateStatus.toString()});
+
+      docSnap["partner_requests"] = partnerRequests;
+      await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$partnerEmail')
+          .update(docSnap);
+
+      final userDocSnap = await _getCurrentUserData(email: userEmail);
+
+      userDocSnap["partner_requests"] = userPartnerUpdateList;
+
+      await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$userEmail')
+          .update(userDocSnap);
+
+      return userDocSnap["partner_requests"];
     } catch (e) {
       debugPrint(e.toString());
       rethrow;

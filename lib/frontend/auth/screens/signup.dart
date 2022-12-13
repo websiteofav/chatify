@@ -62,6 +62,8 @@ class _SignUpState extends State<SignUp> {
             type: CoolAlertType.error,
             text: state.message,
           );
+        } else {
+          _loadingOverlay.hide();
         }
       },
       child: GestureDetector(
@@ -245,12 +247,7 @@ class _SignUpState extends State<SignUp> {
                                 text: ' Login',
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () =>
-                                      // ..onTap = () => Navigator.push(
-                                      //     context,
-                                      //     MaterialPageRoute(
-                                      //         builder: (context) => const Login())),
-                                      Navigator.popAndPushNamed(
-                                          context, '/login'),
+                                      Navigator.pushNamed(context, '/login'),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,

@@ -37,7 +37,7 @@ class _UserCallsState extends State<UserCalls> {
                     ),
                     child: Text(
                       'A',
-                      style: TextStyle(color: AppColors.balck, fontSize: 25),
+                      style: TextStyle(color: AppColors.black, fontSize: 25),
                     ),
                   ),
                   Padding(

@@ -42,3 +42,33 @@ class GetAllUUsersEvent extends UserDetailEvent {
   @override
   List<Object> get props => [];
 }
+
+class FetchUserPartnersEvent extends UserDetailEvent {
+  final String email;
+  const FetchUserPartnersEvent({required this.email});
+
+  @override
+  List<Object> get props => [email];
+}
+
+class UpdateUserPartnersEvent extends UserDetailEvent {
+  final String partnerEmail;
+  final String userEmail;
+  final String partnerUpdateStatus;
+  final List userPartnerUpdateList;
+
+  const UpdateUserPartnersEvent({
+    required this.partnerEmail,
+    required this.userEmail,
+    required this.partnerUpdateStatus,
+    required this.userPartnerUpdateList,
+  });
+
+  @override
+  List<Object> get props => [
+        partnerEmail,
+        userEmail,
+        partnerUpdateStatus,
+        userPartnerUpdateList,
+      ];
+}

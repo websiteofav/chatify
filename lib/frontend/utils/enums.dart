@@ -38,3 +38,27 @@ enum UserActivityMediaTypes {
   text,
   image,
 }
+
+enum UserPartnersState {
+  connect,
+  pending,
+  accept,
+  connected,
+}
+
+enum OtherUserPartnersState {
+  requestPending,
+  requestRecieved,
+  invitationPending,
+  requestAccepted,
+}
+
+enum ChatMessageTypes {
+  none,
+  text,
+  image,
+  video,
+  location,
+  document,
+  audio,
+}

@@ -315,7 +315,7 @@ class _HomePageState extends State<HomePage> {
                       child: Center(
                         child: Text('A',
                             style: TextStyle(
-                                color: AppColors.balck, fontSize: 35)),
+                                color: AppColors.black, fontSize: 35)),
                       )),
                   SizedBox(
                     width: 12,

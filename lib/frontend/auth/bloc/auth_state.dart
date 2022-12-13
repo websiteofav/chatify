@@ -25,6 +25,13 @@ class LoginLoaded extends AuthState {
   List<Object> get props => [];
 }
 
+class LoginError extends AuthState {
+  final String message;
+  LoginError({required this.message});
+  @override
+  List<Object> get props => [message];
+}
+
 class AuthError extends AuthState {
   final String message;
   AuthError({required this.message});

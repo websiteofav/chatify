@@ -15,6 +15,8 @@ class UserDetailsFields {
   static const String accountCreationDate = "creation_date";
 
   static const String accountCreationTime = "creation_time";
+  static const String partnerRequests = "partner_requests";
+  static const String email = "email";
 
   //  "bio": bio,
   //       "activities": [],
@@ -37,7 +39,8 @@ class UserDetailsFields {
     mobileNumber,
     totalPartners,
     partners,
-    profilePic
+    profilePic,
+    email,
   ];
 }
 
@@ -50,11 +53,13 @@ class UserDetailsModel {
   final List partners;
   final String profilePic;
   final String mobileNumber;
+  final String? email;
 
   String? accountCreationDate;
 
   String? accountCreationTime;
 
+  final List partnerRequests;
   UserDetailsModel({
     this.bio,
     required this.activities,
@@ -66,6 +71,8 @@ class UserDetailsModel {
     this.accountCreationDate,
     this.accountCreationTime,
     required this.mobileNumber,
+    required this.partnerRequests,
+    this.email,
   });
 
   Map<String, Object?> toJson() => {
@@ -79,6 +86,8 @@ class UserDetailsModel {
         UserDetailsFields.accountCreationDate: accountCreationDate,
         UserDetailsFields.accountCreationTime: accountCreationTime,
         UserDetailsFields.mobileNumber: mobileNumber,
+        UserDetailsFields.partnerRequests: partnerRequests,
+        UserDetailsFields.email: email,
       };
 
   static UserDetailsModel fromJson(Map<String, Object?> json) =>
@@ -94,7 +103,9 @@ class UserDetailsModel {
               json[UserDetailsFields.accountCreationDate] as String,
           accountCreationTime:
               json[UserDetailsFields.accountCreationTime] as String,
-          mobileNumber: json[UserDetailsFields.mobileNumber] as String);
+          mobileNumber: json[UserDetailsFields.mobileNumber] as String,
+          partnerRequests: json[UserDetailsFields.partnerRequests] as List,
+          email: json[UserDetailsFields.email] as String);
 
   UserDetailsModel copy({String? userName}) => UserDetailsModel(
         userName: userName ?? this.userName,
@@ -107,5 +118,7 @@ class UserDetailsModel {
         accountCreationDate: accountCreationDate,
         accountCreationTime: accountCreationTime,
         mobileNumber: mobileNumber,
+        partnerRequests: partnerRequests,
+        email: email,
       );
 }
