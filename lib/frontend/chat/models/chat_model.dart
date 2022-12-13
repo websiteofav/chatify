@@ -22,5 +22,5 @@ class ChatMessageModel {
       ChatMessageModel(
         message: json[ChatMessageFields.message] as String,
         time: json[ChatMessageFields.time] as String,
-      );
+  );
 }
