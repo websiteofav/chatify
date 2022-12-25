@@ -62,3 +62,10 @@ enum ChatMessageTypes {
   document,
   audio,
 }
+
+enum ImageProviderCategory {
+  fileImage,
+  requestRecieved,
+  assetImage,
+  networkImage,
+}

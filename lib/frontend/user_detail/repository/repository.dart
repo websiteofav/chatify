@@ -1,18 +1,22 @@
+import 'dart:io';
+
+import 'package:chat_app/frontend/chat/models/chat_model.dart';
 import 'package:chat_app/frontend/home/models/user_primary_details.dart';
+import 'package:chat_app/frontend/home/repository/repository.dart';
 import 'package:chat_app/frontend/user_detail/models/user_detail.dart';
 import 'package:chat_app/frontend/utils/constants.dart';
 import 'package:chat_app/frontend/utils/enums.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserRepository {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
+  final _localDB = HomeRepository();
   Future<UserDetailsResults> checkUserAlreadyExists({userName}) async {
     try {
       final user = await FirebaseFirestore.instance
@@ -44,7 +48,7 @@ class UserRepository {
           .set({
         UserDetailsFields.bio: bio,
         UserDetailsFields.activities: [],
-        UserDetailsFields.partners: [],
+        UserDetailsFields.partners: {},
         UserDetailsFields.accountCreationDate: currentDate,
         UserDetailsFields.accountCreationTime: currentTime,
         UserDetailsFields.mobileNumber: '',
@@ -127,7 +131,7 @@ class UserRepository {
     }
   }
 
-  Future<dynamic> _getCurrentUserData({required email}) async {
+  Future<dynamic> getCurrentUserData({required email}) async {
     try {
       final currentUserData = await FirebaseFirestore.instance
           .doc('${Constants.userDetailCollectionName}/$email')
@@ -144,7 +148,7 @@ class UserRepository {
     required email,
   }) async {
     try {
-      final currentUserData = await _getCurrentUserData(email: email);
+      final currentUserData = await getCurrentUserData(email: email);
       final List paretnerRequests = currentUserData["partner_requests"];
 
       return paretnerRequests;
@@ -189,7 +193,7 @@ class UserRepository {
           .doc('${Constants.userDetailCollectionName}/$partnerEmail')
           .update(docSnap);
 
-      final userDocSnap = await _getCurrentUserData(email: userEmail);
+      final userDocSnap = await getCurrentUserData(email: userEmail);
 
       userDocSnap["partner_requests"] = userPartnerUpdateList;
 
@@ -198,6 +202,125 @@ class UserRepository {
           .update(userDocSnap);
 
       return userDocSnap["partner_requests"];
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<Stream<QuerySnapshot<Map<String, dynamic>>>>
+      fetchRealTimeDataFromFirestore() async {
+    try {
+      Stream<QuerySnapshot<Map<String, dynamic>>> snapshot = FirebaseFirestore
+          .instance
+          .collection(Constants.userDetailCollectionName)
+          .snapshots();
+
+      debugPrint(snapshot.toString());
+
+      return snapshot;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<Stream<DocumentSnapshot<Map<String, dynamic>>>>
+      fetchRealTimeMessageFromFirestore() async {
+    try {
+      Stream<
+          DocumentSnapshot<
+              Map<String, dynamic>>> snapshot = FirebaseFirestore.instance
+          .doc(
+              '${Constants.userDetailCollectionName}/${FirebaseAuth.instance.currentUser!.email}')
+          .snapshots();
+
+      debugPrint(snapshot.toString());
+
+      return snapshot;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<bool> sendMessageToPartner(
+      partnerUsername, ChatMessageModel model) async {
+    try {
+      final String userEmail =
+          FirebaseAuth.instance.currentUser!.email.toString();
+
+      final String partnerEmail = await _localDB.getImportantData(
+          partnerUsername, UserPrimaryFields.email);
+
+      final UserPrimaryModel userPrimaryModel =
+          await _localDB.getUserPrimarytData();
+
+      model.messageHolder = userPrimaryModel.userName;
+
+      final DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$partnerEmail')
+          .get();
+
+      final Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+
+      List? oldMessages = data[UserDetailsFields.partners][userEmail];
+      oldMessages ??= [];
+
+      oldMessages.add(model.toJson());
+
+      data[UserDetailsFields.partners][userEmail] = oldMessages;
+
+      await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$partnerEmail')
+          .update(
+              {UserDetailsFields.partners: data[UserDetailsFields.partners]});
+
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> removeOldMessages(String partnerEmail) async {
+    try {
+      final userEmail = FirebaseAuth.instance.currentUser!.email;
+
+      final DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$userEmail')
+          .get();
+
+      final Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+      data[UserDetailsFields.partners][partnerEmail] = [];
+
+      await FirebaseFirestore.instance
+          .doc('${Constants.userDetailCollectionName}/$userEmail')
+          .update(
+              {UserDetailsFields.partners: data[UserDetailsFields.partners]});
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
+
+  Future<String?> uploadMediaToFirebaseStorage(File filePath, reference) async {
+    try {
+      String? url;
+
+      final String fileName =
+          '${FirebaseAuth.instance.currentUser!.uid}${DateTime.now().day}${DateTime.now().month}${DateTime.now().year}${DateTime.now().hour}${DateTime.now().minute}${DateTime.now().second}${DateTime.now().millisecond}';
+
+      final Reference fbStoragereference =
+          FirebaseStorage.instance.ref(reference).child(fileName);
+
+      final UploadTask uploadTask = fbStoragereference.putFile(filePath);
+
+      await uploadTask.whenComplete(
+          () async => url = await fbStoragereference.getDownloadURL());
+
+      return url!;
     } catch (e) {
       debugPrint(e.toString());
       rethrow;

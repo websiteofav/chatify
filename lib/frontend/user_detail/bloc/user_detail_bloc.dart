@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:chat_app/frontend/auth/bloc/auth_bloc.dart';
+import 'package:chat_app/frontend/chat/models/chat_model.dart';
 import 'package:chat_app/frontend/home/models/user_primary_details.dart';
 import 'package:chat_app/frontend/user_detail/models/user_detail.dart';
 import 'package:chat_app/frontend/user_detail/repository/repository.dart';
 import 'package:chat_app/frontend/utils/enums.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -121,6 +125,97 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
           debugPrint(e.toString());
 
           emit(const GetUserPartnersFailed(message: ''));
+        }
+      } else if (event is FetchRealTimeDataEvent) {
+        emit(UserDetailLoading());
+        try {
+          Stream<QuerySnapshot<Map<String, dynamic>>> snapshot =
+              await repository.fetchRealTimeDataFromFirestore();
+
+          emit(RealTimeDateFetched(snapshot: snapshot));
+        } catch (e) {
+          debugPrint(e.toString());
+
+          emit(const RealTimeDateFetchingFailed(
+              message: 'User could not be fetched'));
+        }
+      } else if (event is FetchRealTimeMessageEvent) {
+        emit(UserDetailLoading());
+        try {
+          Stream<DocumentSnapshot<Map<String, dynamic>>> snapshot =
+              await repository.fetchRealTimeMessageFromFirestore();
+
+          emit(RealTimeMessageFetched(snapshot: snapshot));
+        } catch (e) {
+          debugPrint(e.toString());
+
+          emit(const RealTimeMessageFetchingFailed(
+              message: 'User could not be fetched'));
+        }
+      } else if (event is SendChatMessageEvent) {
+        emit(UserDetailLoading());
+        try {
+          //    (await repository.fetchRealTimeDataFromFirestore())
+          //     .listen((event) async {
+          //   // emit(RealTimeDateFetched(snapshot: event));
+
+          //   await emit.onEach(stream, onData: (data) {
+          //     emit(RealTimeDateFetched(snapshot: event));
+          //   });
+          // });
+          bool result = await repository.sendMessageToPartner(
+              event.username, event.model);
+
+          result
+              ? emit(const ChatMessageAdded())
+              : emit(const ChatMessageAddedFailed(
+                  message: 'Message could not be sent'));
+        } catch (e) {
+          emit(const ChatMessageAddedFailed(
+              message: 'Message could not be sent'));
+        }
+      } else if (event is RemoveOldMessageEvent) {
+        emit(UserDetailLoading());
+        try {
+          //    (await repository.fetchRealTimeDataFromFirestore())
+          //     .listen((event) async {
+          //   // emit(RealTimeDateFetched(snapshot: event));
+
+          //   await emit.onEach(stream, onData: (data) {
+          //     emit(RealTimeDateFetched(snapshot: event));
+          //   });
+          // });
+          bool result = await repository.removeOldMessages(event.partnerEmail);
+
+          result
+              ? emit(const OldMessagesRemoved())
+              : emit(const OldMessagesRemovedFailed(
+                  message: 'Messages could not be retrieved'));
+        } catch (e) {
+          emit(const OldMessagesRemovedFailed(
+              message: 'Messages could not be retrieved'));
+        }
+      } else if (event is UploadFileToFirebaseStorageEvent) {
+        emit(UserDetailLoading());
+        try {
+          //    (await repository.fetchRealTimeDataFromFirestore())
+          //     .listen((event) async {
+          //   // emit(RealTimeDateFetched(snapshot: event));
+
+          //   await emit.onEach(stream, onData: (data) {
+          //     emit(RealTimeDateFetched(snapshot: event));
+          //   });
+          // });
+          String? result = await repository.uploadMediaToFirebaseStorage(
+              event.filePath, event.reference);
+
+          result == null
+              ? emit(const FileUploadedToStorageFaield(
+                  message: 'Messages could not be retrieved'))
+              : emit(FileUploadedToStorage(downloadUrl: result));
+        } catch (e) {
+          emit(const FileUploadedToStorageFaield(
+              message: 'Messages could not be retrieved'));
         }
       }
     });

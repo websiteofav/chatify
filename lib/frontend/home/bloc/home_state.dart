@@ -13,7 +13,13 @@ class HomeLoading extends HomeState {}
 
 class UserPrimaryTableLoaded extends HomeState {}
 
-class UserPrimaryDetailsLoaded extends HomeState {}
+class UserPrimaryDetailsLoaded extends HomeState {
+  final UserPrimaryModel model;
+
+  const UserPrimaryDetailsLoaded({required this.model});
+  @override
+  List<Object> get props => [model];
+}
 
 class UserPrimaryDetailsFaield extends HomeState {
   final String message;
@@ -29,6 +35,34 @@ class UserSecondaryDetailsLoaded extends HomeState {}
 class UserSecondaryDetailsFailed extends HomeState {
   final String message;
   const UserSecondaryDetailsFailed({required this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class UserMessageTableCreated extends HomeState {
+  final String username;
+  const UserMessageTableCreated({required this.username});
+  @override
+  List<Object> get props => [username];
+}
+
+class UserMessageTableCreationFailed extends HomeState {
+  final String message;
+  const UserMessageTableCreationFailed({required this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class UserMessageAddedToTable extends HomeState {
+  final ChatMessageModel model;
+  const UserMessageAddedToTable({required this.model});
+  @override
+  List<Object> get props => [model];
+}
+
+class UserMessageAddedToTableFailed extends HomeState {
+  final String message;
+  const UserMessageAddedToTableFailed({required this.message});
   @override
   List<Object> get props => [message];
 }

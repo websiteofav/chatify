@@ -72,3 +72,44 @@ class UpdateUserPartnersEvent extends UserDetailEvent {
         userPartnerUpdateList,
       ];
 }
+
+class FetchRealTimeDataEvent extends UserDetailEvent {
+  const FetchRealTimeDataEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class FetchRealTimeMessageEvent extends UserDetailEvent {
+  const FetchRealTimeMessageEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class SendChatMessageEvent extends UserDetailEvent {
+  final String username;
+  final ChatMessageModel model;
+  const SendChatMessageEvent({required this.model, required this.username});
+
+  @override
+  List<Object> get props => [model, username];
+}
+
+class RemoveOldMessageEvent extends UserDetailEvent {
+  final String partnerEmail;
+  const RemoveOldMessageEvent({required this.partnerEmail});
+
+  @override
+  List<Object> get props => [partnerEmail];
+}
+
+class UploadFileToFirebaseStorageEvent extends UserDetailEvent {
+  final File filePath;
+  final String reference;
+  const UploadFileToFirebaseStorageEvent(
+      {required this.filePath, required this.reference});
+
+  @override
+  List<Object> get props => [filePath, reference];
+}

@@ -50,7 +50,7 @@ class UserDetailsModel {
   final String? bio;
   String? token;
   final String totalPartners;
-  final List partners;
+  final Map<String, dynamic> partners;
   final String profilePic;
   final String mobileNumber;
   final String? email;
@@ -95,7 +95,7 @@ class UserDetailsModel {
           userName: json[UserDetailsFields.username] as String?,
           bio: json[UserDetailsFields.bio] as String,
           activities: json[UserDetailsFields.activities] as List,
-          partners: json[UserDetailsFields.partners] as List,
+          partners: json[UserDetailsFields.partners] as Map<String, dynamic>,
           profilePic: json[UserDetailsFields.profilePic] as String,
           totalPartners: json[UserDetailsFields.totalPartners] as String,
           token: json[UserDetailsFields.token] as String,

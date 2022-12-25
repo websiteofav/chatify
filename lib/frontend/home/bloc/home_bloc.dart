@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:chat_app/frontend/chat/models/chat_model.dart';
 import 'package:chat_app/frontend/home/models/user_primary_details.dart';
 import 'package:chat_app/frontend/home/models/user_secondary_details.dart';
 import 'package:chat_app/frontend/home/repository/repository.dart';
@@ -32,10 +33,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       } else if (event is AddPrimaryDataEvent) {
         emit(HomeLoading());
         try {
-          bool result =
-              await repository.insertOrUpdateImportantUserDB(event.model);
+          bool result = await repository
+              .insertOrUpdateImportantUserDB(event.model, insert: event.insert);
           if (result) {
-            emit(UserPrimaryDetailsLoaded());
+            emit(UserPrimaryDetailsLoaded(model: event.model));
           } else {
             emit(const UserPrimaryDetailsFaield(
                 message: 'User details could not be added'));
@@ -74,6 +75,35 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         } catch (e) {
           emit(const UserSecondaryDetailsFailed(
               message: 'User additional details could not be added'));
+        }
+      } else if (event is CreateUserMessageTableEvent) {
+        emit(HomeLoading());
+        try {
+          bool result = await repository.createMessageTable(event.username);
+          if (result) {
+            emit(UserMessageTableCreated(username: event.username));
+          } else {
+            emit(const UserMessageTableCreationFailed(
+                message: 'Message table could not be created'));
+          }
+        } catch (e) {
+          emit(const UserMessageTableCreationFailed(
+              message: 'Message table could not be created'));
+        }
+      } else if (event is InserMessageToTableEvent) {
+        emit(HomeLoading());
+        try {
+          bool result = await repository.insertMessageInUserTable(
+              event.model, event.username);
+          if (result) {
+            emit(UserMessageAddedToTable(model: event.model));
+          } else {
+            emit(const UserMessageAddedToTableFailed(
+                message: 'Message table could not be created'));
+          }
+        } catch (e) {
+          emit(const UserMessageAddedToTableFailed(
+              message: 'Message table could not be created'));
         }
       }
     });

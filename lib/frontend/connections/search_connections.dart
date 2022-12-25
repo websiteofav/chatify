@@ -200,11 +200,13 @@ class _SearchConnectionsState extends State<SearchConnections> {
 
                 return Container(
                   alignment: Alignment.center,
-                  child: Text(state.message,
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 20,
-                      )),
+                  child: Text(
+                    state.message,
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: 20,
+                    ),
+                  ),
                 );
               } else {
                 return Container();
@@ -216,18 +218,18 @@ class _SearchConnectionsState extends State<SearchConnections> {
 
   void _onPress(index) {
     String? userEmail = FirebaseAuth.instance.currentUser!.email.toString();
-    if (userConnectionStatus[index] == 'Connect') {
-      userPartners
-          .add({model[index].email: UserPartnersState.pending.toString()});
-      BlocProvider.of<UserDetailBloc>(context).add(
-        UpdateUserPartnersEvent(
-            partnerEmail: model[index].email.toString(),
-            partnerUpdateStatus:
-                OtherUserPartnersState.requestPending.toString(),
-            userEmail: userEmail,
-            userPartnerUpdateList: userPartners),
-      );
-    }
+    // if (userConnectionStatus[index] == 'Connect') {
+    //   userPartners
+    //       .add({model[index].email: UserPartnersState.pending.toString()});
+    //   BlocProvider.of<UserDetailBloc>(context).add(
+    //     UpdateUserPartnersEvent(
+    //         partnerEmail: model[index].email.toString(),
+    //         partnerUpdateStatus:
+    //             OtherUserPartnersState.requestPending.toString(),
+    //         userEmail: userEmail,
+    //         userPartnerUpdateList: userPartners),
+    //   );
+    // }
 
     if (userConnectionStatus[index] == 'Connect') {
       userPartners
@@ -241,6 +243,8 @@ class _SearchConnectionsState extends State<SearchConnections> {
             userPartnerUpdateList: userPartners),
       );
     } else if (userConnectionStatus[index] == 'Accept') {
+      userPartners.removeWhere((element) =>
+          element.keys.first.toString() == model[index].email.toString());
       userPartners.add({
         model[index].email: OtherUserPartnersState.requestAccepted.toString()
       });

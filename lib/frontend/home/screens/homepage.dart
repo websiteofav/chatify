@@ -3,6 +3,9 @@
 import 'package:animations/animations.dart';
 import 'package:chat_app/frontend/auth/bloc/auth_bloc.dart';
 import 'package:chat_app/frontend/connections/search_connections.dart';
+import 'package:chat_app/frontend/home/bloc/home_bloc.dart';
+import 'package:chat_app/frontend/home/models/user_primary_details.dart';
+import 'package:chat_app/frontend/home/repository/repository.dart';
 import 'package:chat_app/frontend/home/screens/chatrooms.dart';
 import 'package:chat_app/frontend/home/screens/chats_list.dart';
 import 'package:chat_app/frontend/home/screens/user_calls.dart';
@@ -10,9 +13,13 @@ import 'package:chat_app/frontend/menu/about.dart';
 import 'package:chat_app/frontend/menu/profile_screen.dart';
 import 'package:chat_app/frontend/menu/settings.dart';
 import 'package:chat_app/frontend/menu/support.dart';
+import 'package:chat_app/frontend/user_detail/models/user_detail.dart';
+import 'package:chat_app/frontend/user_detail/repository/repository.dart';
 import 'package:chat_app/frontend/utils/colors.dart';
 import 'package:chat_app/frontend/utils/device_dimensions.dart';
+import 'package:chat_app/frontend/widgets/overlay_loader.dart';
 import 'package:cool_alert/cool_alert.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,8 +39,11 @@ class _HomePageState extends State<HomePage> {
   final _searchEditingController = TextEditingController();
   int bottomBarIndex = 0;
   final PageStorageBucket _homeBucket = PageStorageBucket();
+  final _localDB = HomeRepository();
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final UserRepository repository = UserRepository();
 
   final List<Widget> homePages = const <Widget>[
     ChatList(
@@ -47,10 +57,52 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
+  final LoadingOverlay _loadingOverlay = LoadingOverlay();
+
   @override
   void initState() {
-    // TODO: implement initState
+    _loadingOverlay.hide();
     super.initState();
+  }
+
+  Future<bool> startTime() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool? firstTime = prefs.getBool('first_time');
+
+      if (firstTime == null) {
+        final data = await repository.getCurrentUserData(
+            email: FirebaseAuth.instance.currentUser!.email);
+
+        final UserDetailsModel firebaseModel = UserDetailsModel.fromJson(data);
+        await _localDB.createimportantUserDB();
+
+        UserPrimaryModel model = UserPrimaryModel(
+          userName: firebaseModel.userName,
+          email: firebaseModel.email.toString(),
+          mobileNumber: firebaseModel.mobileNumber,
+          notifications: '',
+          profileImagePath: firebaseModel.profilePic,
+          profileImageURL: firebaseModel.profilePic,
+          bio: firebaseModel.bio,
+          wallpaper: '',
+        );
+
+        await _localDB.insertOrUpdateImportantUserDB(model);
+
+        await _localDB.createSecondarytUserDB(username: firebaseModel.userName);
+        //  await _localDB.insertOrUpdateSecondaryUserDB(model)
+
+        prefs.setBool('first_time', false);
+
+        return true;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
   }
 
   @override
@@ -101,27 +153,50 @@ class _HomePageState extends State<HomePage> {
               );
             }
           },
-          child: GestureDetector(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
+          child: FutureBuilder<bool>(
+              future: startTime(),
+              builder: (context, snapshot) {
+                if (snapshot.data == true) {
+                  return GestureDetector(
+                    onTap: () {
+                      FocusScopeNode currentFocus = FocusScope.of(context);
 
-              if (!currentFocus.hasPrimaryFocus) {
-                currentFocus.unfocus();
-              }
-            },
-            child: ListView(
-              children: [
-                // SizedBox(
-                //   height: 100,
-                // ),
+                      if (!currentFocus.hasPrimaryFocus) {
+                        currentFocus.unfocus();
+                      }
+                    },
+                    child: ListView(
+                      children: [
+                        // SizedBox(
+                        //   height: 100,
+                        // ),
 
-                bottomBarIndex == 0 ? ChatroomsList() : Container(),
+                        bottomBarIndex == 0 ? ChatroomsList() : Container(),
 
-                PageStorage(
-                    bucket: _homeBucket, child: homePages[bottomBarIndex])
-              ],
-            ),
-          ),
+                        PageStorage(
+                            bucket: _homeBucket,
+                            child: homePages[bottomBarIndex])
+                      ],
+                    ),
+                  );
+                } else if (snapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.data == false) {
+                  return Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Something Went Wromg',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: 20,
+                      ),
+                    ),
+                  );
+                } else {
+                  return Container();
+                }
+              }),
         ));
   }
 

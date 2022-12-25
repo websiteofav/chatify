@@ -1,6 +1,8 @@
+import 'package:chat_app/frontend/chat/models/chat_model.dart';
 import 'package:chat_app/frontend/home/models/user_primary_details.dart';
 import 'package:chat_app/frontend/home/models/user_secondary_details.dart';
 import 'package:chat_app/frontend/user_detail/repository/repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/frontend/utils/constants.dart';
@@ -90,13 +92,12 @@ class HomeRepository {
       model.accountCreationDate = currentDate;
       model.accountCreationTime = currentTime;
       model.token = token.toString();
-      final Database? db = _database;
+      Database? db = await database;
 
       int result;
 
       if (insert) {
-        List<Map> count = await db!.query(
-            Constants.userPrimaryDetailsSQLDatabse,
+        List<Map> count = await db.query(Constants.userPrimaryDetailsSQLDatabse,
             where: "${UserPrimaryFields.username} = ?",
             whereArgs: [model.userName]);
 
@@ -114,7 +115,7 @@ class HomeRepository {
 
         return true;
       } else {
-        result = await db!.update(
+        result = await db.update(
           Constants.userPrimaryDetailsSQLDatabse,
           model.toJson(),
           where: '${UserPrimaryFields.username} = ?',
@@ -156,10 +157,10 @@ class HomeRepository {
     UserSecondaryModel model,
   ) async {
     try {
-      final Database? db = _database;
+      Database? db = await database;
 
-      final int result = await db!
-          .insert(Constants.userPrimaryDetailsSQLDatabse, model.toJson());
+      final int result = await db.insert(
+          Constants.userPrimaryDetailsSQLDatabse, model.toJson());
 
       return result > 0 ? true : false;
     } catch (e) {
@@ -168,5 +169,108 @@ class HomeRepository {
     }
   }
 
-  // user_primary_detail_databse
+  Future<bool> createMessageTable(
+    String username,
+  ) async {
+    try {
+      Database? db = await database;
+
+      const descriptionType = "TEXT";
+
+      await db.execute(''' 
+    CREATE TABLE IF NOT EXISTS $username  (
+     ${ChatMessageFields.message} $descriptionType,
+     ${ChatMessageFields.date} $descriptionType,
+     ${ChatMessageFields.fileName} $descriptionType,
+     ${ChatMessageFields.messageHolder} $descriptionType,
+     ${ChatMessageFields.recievedMessage} $descriptionType,
+       ${ChatMessageFields.thumbnailPath} $descriptionType,
+     ${ChatMessageFields.time} $descriptionType,
+     ${ChatMessageFields.typeOfMessage} $descriptionType
+   
+      )
+    ''');
+
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
+
+  Future<UserPrimaryModel> getUserPrimarytData() async {
+    try {
+      Database? db = await database;
+
+      String? userEmail = FirebaseAuth.instance.currentUser!.email.toString();
+
+      List<Map<String, dynamic>> result = await db.query(
+          Constants.userPrimaryDetailsSQLDatabse,
+          where: "${UserPrimaryFields.email} = ?",
+          whereArgs: [userEmail]);
+
+      List<UserPrimaryModel> model =
+          result.map((e) => UserPrimaryModel.fromJson(e)).toList();
+
+      return model[0];
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<String> getImportantData(
+    String username,
+    String field,
+  ) async {
+    try {
+      Database? db = await database;
+
+      List result = await db.rawQuery(
+          "SELECT $field FROM ${Constants.userPrimaryDetailsSQLDatabse} WHERE ${UserPrimaryFields.username} = '$username'");
+
+      return result[0].values.first.toString();
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<bool> insertMessageInUserTable(ChatMessageModel model, uername) async {
+    try {
+      final Database db = await database;
+
+      ChatMessageModel dummyModel = ChatMessageModel(
+        message: model.message,
+        recievedMessage: model.recievedMessage ? 1 : 0,
+        time: model.time,
+        typeOfMessage: model.typeOfMessage,
+        date: model.date,
+        fileName: model.fileName,
+        messageHolder: model.messageHolder,
+        thumbnailPath: model.thumbnailPath,
+      );
+      await db.insert(uername, dummyModel.toJson());
+
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
+
+  Future<List<ChatMessageModel>> queryMessageInUserTable(uername) async {
+    try {
+      final Database db = await database;
+
+      final List<Map<String, Object?>> chat = await db.query(uername);
+
+      final model = chat.map((e) => ChatMessageModel.fromJson(e)).toList();
+
+      return model;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
 }

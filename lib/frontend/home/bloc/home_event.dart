@@ -26,7 +26,8 @@ class CreateSecondaryTableEvent extends HomeEvent {
 
 class AddPrimaryDataEvent extends HomeEvent {
   final UserPrimaryModel model;
-  const AddPrimaryDataEvent({required this.model});
+  bool insert;
+  AddPrimaryDataEvent({required this.model, this.insert = true});
 
   @override
   List<Object> get props => [model];
@@ -38,4 +39,21 @@ class AddSecondaryDataEvent extends HomeEvent {
 
   @override
   List<Object> get props => [model];
+}
+
+class CreateUserMessageTableEvent extends HomeEvent {
+  final String username;
+  const CreateUserMessageTableEvent({required this.username});
+
+  @override
+  List<Object> get props => [];
+}
+
+class InserMessageToTableEvent extends HomeEvent {
+  final String username;
+  ChatMessageModel model;
+  InserMessageToTableEvent({required this.username, required this.model});
+
+  @override
+  List<Object> get props => [username, model];
 }

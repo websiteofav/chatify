@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:447497743065:android:892bc28d73bb2b3f0fecc8",
         "android_client_info": {
-          "package_name": "com.example.chat_app"
+          "package_name": "com.Avinash56.chatify"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "447497743065-883s0c7d760dp55cgq9a1ddlmct5cmdp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.chat_app",
+            "package_name": "com.Avinash56.chatify",
             "certificate_hash": "8934bd5c343d2c21d4c94cfafa302dcb2a283a02"
           }
         },
