@@ -131,11 +131,13 @@ class OldMessagesRemovedFailed extends UserDetailState {
 
 class FileUploadedToStorage extends UserDetailState {
   final String downloadUrl;
+  final String reference;
 
-  const FileUploadedToStorage({required this.downloadUrl});
+  const FileUploadedToStorage(
+      {required this.downloadUrl, required this.reference});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [downloadUrl, reference];
 }
 
 class FileUploadedToStorageFaield extends UserDetailState {

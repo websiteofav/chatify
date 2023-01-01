@@ -24,6 +24,7 @@ import 'package:chat_app/frontend/utils/show_toast_messages.dart';
 import 'package:circle_list/circle_list.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -85,6 +86,8 @@ class _ChatScreenState extends State<ChatScreen> {
   IconData _iconData = Icons.play_arrow_rounded;
 
   Directory? audioDirectory;
+  String downloadUrl = '';
+
   String partnerEmail = '';
 
   final Dio dio = Dio();
@@ -126,6 +129,7 @@ class _ChatScreenState extends State<ChatScreen> {
         await _localDB.queryMessageInUserTable(widget.partnerUsername);
 
     _allMessages.addAll(model);
+    _allMessages = _allMessages.reversed.toList();
   }
 
   void _fetchIncomingMessage() {
@@ -145,7 +149,8 @@ class _ChatScreenState extends State<ChatScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     dimensions = deviceDimensions(context);
-    chatBoxHeight = dimensions[0] - 130;
+    chatBoxHeight =
+        dimensions[0] - 130 - MediaQuery.of(context).viewPadding.top;
   }
 
   @override
@@ -215,7 +220,7 @@ class _ChatScreenState extends State<ChatScreen> {
             listener: (context, state) {
               if (state is UserMessageAddedToTable) {
                 setState(() {
-                  _allMessages.add(state.model);
+                  _allMessages.insert(0, state.model);
                 });
               }
             },
@@ -252,14 +257,50 @@ class _ChatScreenState extends State<ChatScreen> {
                     } else if (e.typeOfMessage ==
                         ChatMessageTypes.image.toString()) {
                       _manageIcomingMediaMessage(e, ChatMessageTypes.image);
+                    } else if (e.typeOfMessage ==
+                        ChatMessageTypes.video.toString()) {
+                      _manageIcomingMediaMessage(e, ChatMessageTypes.video);
+                    } else if (e.typeOfMessage ==
+                        ChatMessageTypes.location.toString()) {
+                      BlocProvider.of<HomeBloc>(context).add(
+                        InserMessageToTableEvent(
+                            model: e, username: widget.partnerUsername),
+                      );
+                    } else if (e.typeOfMessage ==
+                        ChatMessageTypes.document.toString()) {
+                      _manageIcomingMediaMessage(e, ChatMessageTypes.document);
                     }
                   }).toList();
                 } else if (state is FileUploadedToStorage) {
-                  model!.fileName = state.downloadUrl;
-                  BlocProvider.of<UserDetailBloc>(context).add(
-                    SendChatMessageEvent(
-                        model: model!, username: widget.partnerUsername),
-                  );
+                  if (state.reference == 'chatVideo/') {
+                    downloadUrl = state.downloadUrl;
+                    BlocProvider.of<UserDetailBloc>(context).add(
+                      UploadFileToFirebaseStorageEvent(
+                          filePath: File(model!.thumbnailPath.toString()),
+                          reference: 'chatVideoThumbnail/'),
+                    );
+                  } else {
+                    final partnerModel = ChatMessageModel(
+                      message: model!.message,
+                      recievedMessage: model!.recievedMessage ?? '',
+                      time: model!.time,
+                      typeOfMessage: model!.typeOfMessage,
+                      date: model!.date,
+                      fileName: model!.fileName ?? '',
+                      messageHolder: model!.messageHolder ?? '',
+                      thumbnailPath: model!.thumbnailPath ?? '',
+                    );
+                    if (state.reference == 'chatVideoThumbnail/') {
+                      partnerModel.thumbnailPath = state.downloadUrl;
+                    }
+                    partnerModel.fileName = state.downloadUrl;
+                    BlocProvider.of<UserDetailBloc>(context).add(
+                      SendChatMessageEvent(
+                          model: partnerModel,
+                          username: widget.partnerUsername),
+                    );
+                  }
+
                   // BlocProvider.of<HomeBloc>(context).add(
                   //   InserMessageToTableEvent(
                   //       model: model!, username: widget.partnerUsername),
@@ -283,6 +324,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         controller: _controller,
                         itemCount: _allMessages.length,
                         shrinkWrap: true,
+                        reverse: true,
                         itemBuilder: (ctx, index) {
                           if (_allMessages[index].typeOfMessage.toString() ==
                               ChatMessageTypes.text.toString()) {
@@ -349,6 +391,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       String reference = '';
       String extension = '';
+      String? thumbnailPath;
       if (chatMessageTypes == ChatMessageTypes.audio) {
         reference = '/Audios/';
         extension = '.mp3';
@@ -360,29 +403,48 @@ class _ChatScreenState extends State<ChatScreen> {
         extension = '.pdf';
       } else if (chatMessageTypes == ChatMessageTypes.video) {
         reference = '/Videos/';
-        extension = '.m4p';
+        extension = '.mp4';
       }
 
       final Directory? directory = await getExternalStorageDirectory();
 
       final audioStorage =
           await Directory("${directory!.path}$reference").create();
-
       final String audioSroragePath =
           "${audioStorage.path}${DateTime.now().toString().split(" ").join("")}$extension";
 
       await dio.download(voiceModel.fileName.toString(), audioSroragePath);
+      if (chatMessageTypes == ChatMessageTypes.video) {
+        final thubnailStorage =
+            await Directory("${directory.path}/Thumbnail").create();
+        thumbnailPath =
+            "${thubnailStorage.path}${DateTime.now().toString().split(" ").join("")}.png";
+        await dio.download(voiceModel.thumbnailPath.toString(), thumbnailPath);
+      }
+
+      final recievedMediaModel = ChatMessageModel(
+        message: audioSroragePath,
+        time: voiceModel.time,
+        typeOfMessage: voiceModel.typeOfMessage,
+        recievedMessage: voiceModel.recievedMessage,
+        date: voiceModel.date,
+        fileName: voiceModel.fileName,
+        messageHolder: voiceModel.messageHolder,
+        thumbnailPath: thumbnailPath,
+      );
 
       if (mounted) {
         BlocProvider.of<HomeBloc>(context).add(
           InserMessageToTableEvent(
-              model: voiceModel, username: widget.partnerUsername),
+              model: recievedMediaModel, username: widget.partnerUsername),
         );
       }
     } catch (e) {
       debugPrint(e.toString());
     }
   }
+
+  void _manageIcomingLocationMessage(ChatMessageModel chatMessageModel) {}
 
   Widget _emojiPicker() {
     return SizedBox(
@@ -804,20 +866,24 @@ class _ChatScreenState extends State<ChatScreen> {
         quality: 100,
       );
 
-      _allMessages.add(
-        ChatMessageModel(
-          message: pickedVideo.path,
-          time: currentTime,
-          thumbnailPath: imagePath,
-          typeOfMessage: ChatMessageTypes.video.toString(),
-          recievedMessage: false,
-          fileName: null,
-        ),
+      model = ChatMessageModel(
+        message: pickedVideo.path,
+        time: currentTime,
+        thumbnailPath: imagePath,
+        typeOfMessage: ChatMessageTypes.video.toString(),
+        recievedMessage: false,
+        fileName: null,
+        date: DateTime.now().toString(),
       );
 
       if (mounted) {
         Navigator.of(context).pop();
         Navigator.pop(context);
+
+        BlocProvider.of<UserDetailBloc>(context).add(
+          UploadFileToFirebaseStorageEvent(
+              filePath: File(pickedVideo.path), reference: 'chatVideo/'),
+        );
       }
     }
 
@@ -849,19 +915,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendAudio(path, {extension, fileName}) async {
-    if (player.duration != null) {
-      await player.stop();
-      setState(() {
-        _iconData = Icons.play_arrow_rounded;
-      });
+    await player.stop();
+    setState(() {
+      _iconData = Icons.play_arrow_rounded;
+    });
 
-      await player.setFilePath(path);
-      if (player.duration!.inMinutes > 15) {
-        showToast(
-            fToast: fToast,
-            message: 'Audio should not be gretater tha 15 mins',
-            backgroundColor: AppColors.logout);
-      }
+    await player.setFilePath(path);
+    if (player.duration!.inMinutes > 15) {
+      showToast(
+          fToast: fToast,
+          message: 'Audio should not be gretater tha 15 mins',
+          backgroundColor: AppColors.logout);
     } else {
       final currentTime = '${DateTime.now().hour}:${DateTime.now().minute}';
 
@@ -875,10 +939,12 @@ class _ChatScreenState extends State<ChatScreen> {
         date: DateTime.now().toString(),
       );
 
-      BlocProvider.of<UserDetailBloc>(context).add(
-        UploadFileToFirebaseStorageEvent(
-            filePath: File(path), reference: 'chatAudio/'),
-      );
+      if (mounted) {
+        BlocProvider.of<UserDetailBloc>(context).add(
+          UploadFileToFirebaseStorageEvent(
+              filePath: File(path), reference: 'chatAudio/'),
+        );
+      }
     }
   }
 
@@ -1131,13 +1197,28 @@ class _ChatScreenState extends State<ChatScreen> {
           if (allowedExtensions.contains(file.extension)) {
             final currentTime =
                 '${DateTime.now().hour}:${DateTime.now().minute}';
-            _allMessages.add(ChatMessageModel(
+            // _allMessages.add(ChatMessageModel(
+            //   message: file.path.toString(),
+            //   time: currentTime,
+            //   typeOfMessage: ChatMessageTypes.document.toString(),
+            //   recievedMessage: false,
+            //   fileName: file.path!.split('/').last,
+            // ));
+
+            model = ChatMessageModel(
               message: file.path.toString(),
               time: currentTime,
               typeOfMessage: ChatMessageTypes.document.toString(),
-              recievedMessage: false,
+              recievedMessage: true,
               fileName: file.path!.split('/').last,
-            ));
+              thumbnailPath: null,
+              date: DateTime.now().toString(),
+            );
+
+            BlocProvider.of<UserDetailBloc>(context).add(
+                UploadFileToFirebaseStorageEvent(
+                    filePath: File(file.path.toString()),
+                    reference: 'chatDocuments/'));
           }
         }).toList();
 
@@ -1288,14 +1369,28 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (mounted) {
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
-                        _allMessages.add(ChatMessageModel(
-                            message:
-                                '${position.latitude}:${position.longitude}',
-                            recievedMessage: false,
-                            time: currentTime,
-                            typeOfMessage:
-                                ChatMessageTypes.location.toString()));
-                        setState(() {});
+                        // _allMessages.add(ChatMessageModel(
+                        //     message:
+                        //         '${position.latitude}:${position.longitude}',
+                        //     recievedMessage: false,
+                        //     time: currentTime,
+                        //     typeOfMessage:
+                        //         ChatMessageTypes.location.toString()));
+                        // setState(() {});
+                        model = ChatMessageModel(
+                          message: '${position.latitude}:${position.longitude}',
+                          time: currentTime,
+                          typeOfMessage: ChatMessageTypes.location.toString(),
+                          recievedMessage: true,
+                          fileName: null,
+                          thumbnailPath: null,
+                          date: DateTime.now().toString(),
+                        );
+
+                        BlocProvider.of<UserDetailBloc>(context).add(
+                            SendChatMessageEvent(
+                                model: model!,
+                                username: widget.partnerUsername));
                       }
                     },
                     child: Icon(
@@ -1346,6 +1441,23 @@ class _ChatScreenState extends State<ChatScreen> {
           alignment: _allMessages[index].messageHolder == widget.partnerUsername
               ? Alignment.centerLeft
               : Alignment.centerRight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft:
+                  _allMessages[index].messageHolder == widget.partnerUsername
+                      ? Radius.circular(0.0)
+                      : Radius.circular(20.0),
+              topRight:
+                  _allMessages[index].messageHolder == widget.partnerUsername
+                      ? Radius.circular(20.0)
+                      : Radius.circular(0.0),
+              bottomLeft: Radius.circular(20.0),
+              bottomRight: Radius.circular(20.0),
+            ),
+            color: _allMessages[index].messageHolder == widget.partnerUsername
+                ? AppColors.textColor2
+                : AppColors.textColor4,
+          ),
           child: GoogleMap(
             mapType: MapType.hybrid,
             markers: {

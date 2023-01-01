@@ -20,12 +20,18 @@
       "request": "launch",
       "type": "dart",
       "deviceId": "emulator-5556"
+    },
+    {
+      "name": "Mobile",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "1118179f"
     }
   ],
   "compounds": [
     {
       "name": "All Devices",
-      "configurations": ["Android", "Android2"]
+      "configurations": ["Mobile", "Android2"]
     }
   ]
 }

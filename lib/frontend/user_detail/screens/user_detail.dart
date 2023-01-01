@@ -26,7 +26,6 @@ class _UserDetailState extends State<UserDetail> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _userNameEditingController =
       TextEditingController();
-  final TextEditingController _aboutController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
 
   final LoadingOverlay _loadingOverlay = LoadingOverlay();
@@ -175,11 +174,11 @@ class _UserDetailState extends State<UserDetail> {
                         CustomTextField(
                           hintText: '',
                           onChange: (value) {
-                            _userNameEditingController.text = value;
-                            _userNameEditingController.selection =
-                                TextSelection.fromPosition(TextPosition(
-                                    offset: _userNameEditingController
-                                        .text.length));
+                            // _userNameEditingController.text = value;
+                            // _userNameEditingController.selection =
+                            //     TextSelection.fromPosition(TextPosition(
+                            //         offset: _userNameEditingController
+                            //             .text.length));
                           },
                           textController: _userNameEditingController,
                           validator: (value) {
@@ -207,12 +206,7 @@ class _UserDetailState extends State<UserDetail> {
                           keyboard: TextInputType.multiline,
                           maxlines: null,
                           hintText: '',
-                          onChange: (value) {
-                            _aboutController.text = value;
-                            _aboutController.selection =
-                                TextSelection.fromPosition(TextPosition(
-                                    offset: _aboutController.text.length));
-                          },
+                          onChange: null,
                           textController: _bioController,
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -231,10 +225,13 @@ class _UserDetailState extends State<UserDetail> {
                           width: dimensions[1] * 0.3,
                           child: ElevatedButton(
                             onPressed: () {
-                              BlocProvider.of<UserDetailBloc>(context).add(
-                                FetchUserEvent(
-                                    userName: _userNameEditingController.text),
-                              );
+                              if (_formKey.currentState!.validate()) {
+                                BlocProvider.of<UserDetailBloc>(context).add(
+                                  FetchUserEvent(
+                                      userName:
+                                          _userNameEditingController.text),
+                                );
+                              }
                             },
                             style: ButtonStyle(
                                 backgroundColor:

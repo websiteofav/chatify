@@ -228,13 +228,16 @@ class HomeRepository {
 
       List result = await db.rawQuery(
           "SELECT $field FROM ${Constants.userPrimaryDetailsSQLDatabse} WHERE ${UserPrimaryFields.username} = '$username'");
-
+      print(result[0]);
       return result[0].values.first.toString();
     } catch (e) {
       debugPrint(e.toString());
       rethrow;
     }
   }
+// QueryResultSet ([{token: clk5-iXlTl-ClR99rM4oV_:APA91bFYM7H07myGA4uXX2_hgIpnKaHsxWrx48zbFSa9ArsFAJXLCBqULp4p21Hzkk33n3zAMhJSojvRY9DETWIQWVQfBRZ2YSclxsq6OOSf0ypDL2Zz38lLbJBkSreSgoqqegjPYi4R}])
+
+  // QueryResultSet ([{email: avinash.upadhyay@oneture.com}])
 
   Future<bool> insertMessageInUserTable(ChatMessageModel model, uername) async {
     try {

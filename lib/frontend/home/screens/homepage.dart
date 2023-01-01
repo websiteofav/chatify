@@ -41,6 +41,8 @@ class _HomePageState extends State<HomePage> {
   final PageStorageBucket _homeBucket = PageStorageBucket();
   final _localDB = HomeRepository();
 
+  SharedPreferences? prefs;
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final UserRepository repository = UserRepository();
@@ -67,8 +69,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> startTime() async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool? firstTime = prefs.getBool('first_time');
+      prefs = await SharedPreferences.getInstance();
+
+      bool? firstTime = prefs!.getBool('first_time');
 
       if (firstTime == null) {
         final data = await repository.getCurrentUserData(
@@ -78,22 +81,23 @@ class _HomePageState extends State<HomePage> {
         await _localDB.createimportantUserDB();
 
         UserPrimaryModel model = UserPrimaryModel(
-          userName: firebaseModel.userName,
-          email: firebaseModel.email.toString(),
-          mobileNumber: firebaseModel.mobileNumber,
-          notifications: '',
-          profileImagePath: firebaseModel.profilePic,
-          profileImageURL: firebaseModel.profilePic,
-          bio: firebaseModel.bio,
-          wallpaper: '',
-        );
+            userName: firebaseModel.userName,
+            email: firebaseModel.email.toString(),
+            mobileNumber: firebaseModel.mobileNumber,
+            notifications: '',
+            profileImagePath: firebaseModel.profilePic,
+            profileImageURL: firebaseModel.profilePic,
+            bio: firebaseModel.bio,
+            wallpaper: '',
+            accountCreationDate: firebaseModel.accountCreationDate,
+            accountCreationTime: firebaseModel.accountCreationTime,
+            token: firebaseModel.token);
 
         await _localDB.insertOrUpdateImportantUserDB(model);
 
         await _localDB.createSecondarytUserDB(username: firebaseModel.userName);
-        //  await _localDB.insertOrUpdateSecondaryUserDB(model)
 
-        prefs.setBool('first_time', false);
+        // prefs.setBool('first_time', false);
 
         return true;
       } else {
@@ -109,7 +113,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
     //     overlays: [SystemUiOverlay.top]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
     final dimensions = deviceDimensions(context);
 

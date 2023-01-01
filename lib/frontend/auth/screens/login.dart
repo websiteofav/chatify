@@ -8,7 +8,11 @@ import 'dart:developer';
 // import 'package:ecommerce/utils/images.dart';
 // import 'package:ecommerce/utils/validators.dart';
 import 'package:chat_app/frontend/auth/bloc/auth_bloc.dart';
+import 'package:chat_app/frontend/auth/repository/repository.dart';
+import 'package:chat_app/frontend/home/screens/homepage.dart';
 import 'package:chat_app/frontend/user_detail/bloc/user_detail_bloc.dart';
+import 'package:chat_app/frontend/user_detail/repository/repository.dart';
+import 'package:chat_app/frontend/user_detail/screens/user_detail.dart';
 import 'package:chat_app/frontend/utils/device_dimensions.dart';
 import 'package:chat_app/frontend/utils/image_path.dart';
 import 'package:chat_app/frontend/utils/validators.dart';
@@ -84,11 +88,33 @@ class _LoginState extends State<Login> {
           body: BlocListener<UserDetailBloc, UserDetailState>(
             listener: (context, state) {
               if (state is UserDetalsExists) {
-                Navigator.popAndPushNamed(context, '/home');
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) {
+                  return const HomePage();
+                }));
               } else if (state is UserDetalsExistsFailed) {
-                Navigator.popAndPushNamed(context, '/home');
-              } else if (state is UserDetalsExistsFailed) {
-                Navigator.popAndPushNamed(context, '/userDetail');
+                // Navigator.pop(context, MaterialPageRoute(builder: (context) {
+                //   return BlocProvider(
+                //     lazy: false,
+                //     create: (context) =>
+                //         UserDetailBloc(repository: UserRepository()),
+                //     child: const UserDetail(),
+                //   );
+                // }));
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (BuildContext buildContext) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider(
+                                lazy: false,
+                                create: (context) => UserDetailBloc(
+                                    repository: UserRepository())),
+                            BlocProvider(
+                                lazy: false,
+                                create: (context) =>
+                                    AuthBloc(repository: AuthRepository())),
+                          ],
+                          child: const UserDetail(),
+                        )));
               }
             },
             child: BlocListener<AuthBloc, AuthState>(
@@ -134,13 +160,7 @@ class _LoginState extends State<Login> {
                         ),
                         CustomTextField(
                           hintText: 'Email Id',
-                          onChange: (value) {
-                            _emailEditingController.text = value;
-                            _emailEditingController.selection =
-                                TextSelection.fromPosition(TextPosition(
-                                    offset:
-                                        _emailEditingController.text.length));
-                          },
+                          onChange: null,
                           textController: _emailEditingController,
                           validator: (value) {
                             if (Validators.emailValidator(value!) == false) {
@@ -152,13 +172,7 @@ class _LoginState extends State<Login> {
                         ),
                         CustomTextField(
                           hintText: 'Password',
-                          onChange: (value) {
-                            _passwordEditingController.text = value;
-                            _passwordEditingController.selection =
-                                TextSelection.fromPosition(TextPosition(
-                                    offset: _passwordEditingController
-                                        .text.length));
-                          },
+                          onChange: null,
                           textController: _passwordEditingController,
                           validator: (value) {
                             // if (Validators.passwordValidator(value!) == false) {

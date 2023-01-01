@@ -198,21 +198,29 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
       } else if (event is UploadFileToFirebaseStorageEvent) {
         emit(UserDetailLoading());
         try {
-          //    (await repository.fetchRealTimeDataFromFirestore())
-          //     .listen((event) async {
-          //   // emit(RealTimeDateFetched(snapshot: event));
-
-          //   await emit.onEach(stream, onData: (data) {
-          //     emit(RealTimeDateFetched(snapshot: event));
-          //   });
-          // });
           String? result = await repository.uploadMediaToFirebaseStorage(
               event.filePath, event.reference);
 
           result == null
               ? emit(const FileUploadedToStorageFaield(
                   message: 'Messages could not be retrieved'))
-              : emit(FileUploadedToStorage(downloadUrl: result));
+              : emit(FileUploadedToStorage(
+                  downloadUrl: result, reference: event.reference));
+        } catch (e) {
+          emit(const FileUploadedToStorageFaield(
+              message: 'Messages could not be retrieved'));
+        }
+      } else if (event is UploadFileToFirebaseStorageEvent) {
+        emit(UserDetailLoading());
+        try {
+          String? result = await repository.uploadMediaToFirebaseStorage(
+              event.filePath, event.reference);
+
+          result == null
+              ? emit(const FileUploadedToStorageFaield(
+                  message: 'Messages could not be retrieved'))
+              : emit(FileUploadedToStorage(
+                  downloadUrl: result, reference: event.reference));
         } catch (e) {
           emit(const FileUploadedToStorageFaield(
               message: 'Messages could not be retrieved'));

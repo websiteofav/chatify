@@ -154,10 +154,10 @@ class _ChatListState extends State<ChatList> {
                             Spacer(),
                             Column(
                               children: [
-                                Icon(
-                                  Icons.notifications,
-                                  color: AppColors.white,
-                                ),
+                                // Icon(
+                                //   Icons.notifications,
+                                //   color: AppColors.white,
+                                // ),
                                 Padding(
                                   padding: const EdgeInsets.only(top: 18),
                                   child: Text(

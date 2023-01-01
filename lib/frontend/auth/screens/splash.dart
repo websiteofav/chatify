@@ -1,6 +1,9 @@
+import 'package:chat_app/frontend/auth/bloc/auth_bloc.dart';
+import 'package:chat_app/frontend/auth/repository/repository.dart';
 import 'package:chat_app/frontend/auth/screens/signup.dart';
 import 'package:chat_app/frontend/home/screens/homepage.dart';
 import 'package:chat_app/frontend/user_detail/bloc/user_detail_bloc.dart';
+import 'package:chat_app/frontend/user_detail/repository/repository.dart';
 import 'package:chat_app/frontend/user_detail/screens/user_detail.dart';
 import 'package:chat_app/frontend/utils/image_path.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,12 +48,20 @@ class _SplashState extends State<Splash> {
               ),
             );
           } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const UserDetail(),
-              ),
-            );
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (BuildContext buildContext) => MultiBlocProvider(
+                      providers: [
+                        BlocProvider(
+                            lazy: false,
+                            create: (context) =>
+                                UserDetailBloc(repository: UserRepository())),
+                        BlocProvider(
+                            lazy: false,
+                            create: (context) =>
+                                AuthBloc(repository: AuthRepository())),
+                      ],
+                      child: const UserDetail(),
+                    )));
           }
         }
       },

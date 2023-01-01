@@ -6,6 +6,7 @@ import 'package:chat_app/frontend/home/repository/repository.dart';
 import 'package:chat_app/frontend/user_detail/models/user_detail.dart';
 import 'package:chat_app/frontend/utils/constants.dart';
 import 'package:chat_app/frontend/utils/enums.dart';
+import 'package:chat_app/frontend/utils/send_notification_management.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserRepository {
   final _localDB = HomeRepository();
+  final SendNotifications _sendNotifications = SendNotifications();
   Future<UserDetailsResults> checkUserAlreadyExists({userName}) async {
     try {
       final user = await FirebaseFirestore.instance
@@ -253,6 +255,9 @@ class UserRepository {
       final String partnerEmail = await _localDB.getImportantData(
           partnerUsername, UserPrimaryFields.email);
 
+      final String partnerToken = await _localDB.getImportantData(
+          partnerUsername, UserPrimaryFields.token);
+
       final UserPrimaryModel userPrimaryModel =
           await _localDB.getUserPrimarytData();
 
@@ -275,6 +280,28 @@ class UserRepository {
           .doc('${Constants.userDetailCollectionName}/$partnerEmail')
           .update(
               {UserDetailsFields.partners: data[UserDetailsFields.partners]});
+      ChatMessageTypes messageType;
+      if (model.typeOfMessage == ChatMessageTypes.text.toString()) {
+        messageType = ChatMessageTypes.text;
+      } else if (model.typeOfMessage == ChatMessageTypes.video.toString()) {
+        messageType = ChatMessageTypes.video;
+      } else if (model.typeOfMessage == ChatMessageTypes.audio.toString()) {
+        messageType = ChatMessageTypes.audio;
+      } else if (model.typeOfMessage == ChatMessageTypes.document.toString()) {
+        messageType = ChatMessageTypes.document;
+      } else if (model.typeOfMessage == ChatMessageTypes.image.toString()) {
+        messageType = ChatMessageTypes.image;
+      } else if (model.typeOfMessage == ChatMessageTypes.location.toString()) {
+        messageType = ChatMessageTypes.location;
+      } else {
+        messageType = ChatMessageTypes.none;
+      }
+
+      await _sendNotifications.messageNotifcationsClassifier(
+          chatMessageTypes: messageType,
+          message: model.message,
+          token: partnerToken,
+          currentUsername: userPrimaryModel.userName.toString());
 
       return true;
     } catch (e) {
@@ -326,4 +353,26 @@ class UserRepository {
       rethrow;
     }
   }
+
+  // Future<String?> getConnectedPartners(File filePath, reference) async {
+  //   try {
+  //     String? url;
+
+  //     final String fileName =
+  //         '${FirebaseAuth.instance.currentUser!.uid}${DateTime.now().day}${DateTime.now().month}${DateTime.now().year}${DateTime.now().hour}${DateTime.now().minute}${DateTime.now().second}${DateTime.now().millisecond}';
+
+  //     final Reference fbStoragereference =
+  //         FirebaseStorage.instance.ref(reference).child(fileName);
+
+  //     final UploadTask uploadTask = fbStoragereference.putFile(filePath);
+
+  //     await uploadTask.whenComplete(
+  //         () async => url = await fbStoragereference.getDownloadURL());
+
+  //     return url!;
+  //   } catch (e) {
+  //     debugPrint(e.toString());
+  //     rethrow;
+  //   }
+  // }
 }

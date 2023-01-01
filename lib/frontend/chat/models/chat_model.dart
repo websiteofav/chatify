@@ -26,7 +26,7 @@ class ChatMessageFields {
 class ChatMessageModel {
   final String message;
   final String time;
-  final String? thumbnailPath;
+  String? thumbnailPath;
   String? fileName;
   final String typeOfMessage;
   dynamic recievedMessage;

@@ -9,15 +9,21 @@ import 'package:chat_app/frontend/home/screens/homepage.dart';
 import 'package:chat_app/frontend/user_detail/bloc/user_detail_bloc.dart';
 import 'package:chat_app/frontend/user_detail/repository/repository.dart';
 import 'package:chat_app/frontend/user_detail/screens/user_detail.dart';
+import 'package:chat_app/frontend/utils/receive_notification_managemenet.dart';
 import 'package:chat_app/frontend/widgets/overlay_loader.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await FirebaseMessaging.instance.getToken();
+  await initializeNotifications();
+
+  FirebaseMessaging.onBackgroundMessage(backgroundMessageAction);
+
   runApp(MyApp());
 }
 
@@ -34,7 +40,24 @@ class _MyAppState extends State<MyApp> {
   LoadingOverlay _overlay = LoadingOverlay();
 
   @override
-  void initState() {}
+  void initState() {
+    init();
+  }
+
+  Future<void> init() async {
+    FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+    // Getting the token makes everything work as expected
+    _firebaseMessaging.getToken().then((String? token) {
+      assert(token != null);
+    });
+    FirebaseMessaging.onMessage.listen((event) {
+      debugPrint('Message Data: $event');
+      _recieveAndShowNotificationIntialization(
+          title: event.notification!.title.toString(),
+          body: event.notification!.body.toString());
+    });
+  }
 
   // This widget is the root of your application.
   @override
@@ -81,4 +104,29 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+}
+
+Future<void> initializeNotifications() async {
+  await FirebaseMessaging.instance.subscribeToTopic("chatify");
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true, badge: true, sound: true);
+}
+
+void _recieveAndShowNotificationIntialization(
+    {required String title, required String body}) async {
+  final ReceiveNotification receiveNotification = ReceiveNotification();
+
+  debugPrint("Notification activated");
+
+  await receiveNotification.showForegroundNotification(
+      title: title, body: body);
+}
+
+Future<void> backgroundMessageAction(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
+  _recieveAndShowNotificationIntialization(
+      title: message.notification!.title.toString(),
+      body: message.notification!.body.toString());
 }
