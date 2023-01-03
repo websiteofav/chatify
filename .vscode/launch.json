@@ -31,7 +31,7 @@
   "compounds": [
     {
       "name": "All Devices",
-      "configurations": ["Mobile", "Android2"]
+      "configurations": ["Android", "Android2"]
     }
   ]
 }

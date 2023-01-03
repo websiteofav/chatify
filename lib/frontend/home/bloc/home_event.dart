@@ -57,3 +57,15 @@ class InserMessageToTableEvent extends HomeEvent {
   @override
   List<Object> get props => [username, model];
 }
+
+class FetchUserPartnerMessageEvent extends HomeEvent {
+  final String username;
+  const FetchUserPartnerMessageEvent({
+    required this.username,
+  });
+
+  @override
+  List<Object> get props => [
+        username,
+      ];
+}

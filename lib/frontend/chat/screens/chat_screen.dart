@@ -90,6 +90,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   String partnerEmail = '';
 
+  List<String> messageDates = [];
+
   final Dio dio = Dio();
   void initState() {
     fToast.init(context);
@@ -129,12 +131,19 @@ class _ChatScreenState extends State<ChatScreen> {
         await _localDB.queryMessageInUserTable(widget.partnerUsername);
 
     _allMessages.addAll(model);
+
     _allMessages = _allMessages.reversed.toList();
+
+    setState(() {});
   }
 
   void _fetchIncomingMessage() {
     BlocProvider.of<UserDetailBloc>(context).add(
       FetchRealTimeMessageEvent(),
+    );
+
+    BlocProvider.of<UserDetailBloc>(context).add(
+      FetchRealTimeDataEvent(),
     );
   }
 
@@ -144,6 +153,7 @@ class _ChatScreenState extends State<ChatScreen> {
     audioDirectory = await Directory('${directory!.path}/Recordings').create();
   }
 
+  List? sentMessages = [];
   List dimensions = [];
 
   void didChangeDependencies() {
@@ -176,6 +186,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
             return false;
           }
+
+          // Navigator.pop(context, widget.partnerUsername);
           return true;
         },
         child: Scaffold(
@@ -219,9 +231,12 @@ class _ChatScreenState extends State<ChatScreen> {
           body: BlocListener<HomeBloc, HomeState>(
             listener: (context, state) {
               if (state is UserMessageAddedToTable) {
-                setState(() {
-                  _allMessages.insert(0, state.model);
-                });
+                _allMessages.insert(0, state.model);
+                _controller.jumpTo(_controller.position.minScrollExtent);
+
+                if (mounted) {
+                  setState(() {});
+                }
               }
             },
             child: BlocListener<UserDetailBloc, UserDetailState>(
@@ -240,6 +255,28 @@ class _ChatScreenState extends State<ChatScreen> {
                     type: CoolAlertType.error,
                     text: state.message,
                   );
+                } else if (state is RealTimeDateFetched) {
+                  state.snapshot.listen((event) {
+                    messageDates = [];
+                    event.docs.map((snapshot) {
+                      final String partnerName =
+                          snapshot.get(UserDetailsFields.username);
+                      if (partnerName == widget.partnerUsername) {
+                        Map<String, dynamic>? messages =
+                            snapshot.get(UserDetailsFields.partners);
+                        sentMessages = messages![FirebaseAuth
+                            .instance.currentUser!.email
+                            .toString()];
+                        sentMessages = sentMessages ?? [];
+                        sentMessages!
+                            .map((message) => messageDates
+                                .add(message[ChatMessageFields.date]))
+                            .toList();
+
+                        setState(() {});
+                      }
+                    }).toList();
+                  });
                 } else if (state is RealTimeMessageFetched) {
                   state.snapshot.listen((doc) {
                     _checkForIncomingMessages(doc.data());
@@ -580,9 +617,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
                           _textEditingController.clear();
                         });
-
-                        _controller
-                            .jumpTo(_controller.position.maxScrollExtent);
                       } else {
                         _audioRecording();
 
@@ -1013,23 +1047,38 @@ class _ChatScreenState extends State<ChatScreen> {
                   bottom: 5.0,
                   top: 5.0,
                 ),
-          child: _timeWidget(_allMessages[index].time),
+          child: _timeWidget(_allMessages[index].time,
+              show: _allMessages[index].messageHolder != widget.partnerUsername,
+              date: _allMessages[index].date),
         )
       ],
     );
   }
 
-  Widget _timeWidget(String time) {
+  Widget _timeWidget(String time, {bool show = false, date}) {
     final timeSplit = time.split(':');
     final hour = timeSplit[0].padLeft(2, '0');
     final minutes = timeSplit[1].padLeft(2, '0');
 
-    return Text('$hour:$minutes ',
-        style: TextStyle(
-            color: AppColors.textColor2,
-            overflow: TextOverflow.ellipsis,
-            fontSize: 14,
-            fontWeight: FontWeight.w600));
+    return Row(
+      mainAxisAlignment: show ? MainAxisAlignment.end : MainAxisAlignment.start,
+      children: [
+        if (show)
+          Icon(
+            Icons.done_all,
+            size: 16,
+            color: !messageDates.contains(date)
+                ? AppColors.backgroundColor4
+                : AppColors.white,
+          ),
+        Text('$hour:$minutes ',
+            style: TextStyle(
+                color: AppColors.white,
+                overflow: TextOverflow.ellipsis,
+                fontSize: 14,
+                fontWeight: FontWeight.w600)),
+      ],
+    );
   }
 
   Widget _mediaConversation(index) {

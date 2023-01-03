@@ -105,6 +105,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           emit(const UserMessageAddedToTableFailed(
               message: 'Message table could not be created'));
         }
+      } else if (event is FetchUserPartnerMessageEvent) {
+        // emit(HomeLoading());
+        try {
+          List<ChatMessageModel> model =
+              await repository.queryMessageInUserTable(event.username);
+          emit(HomeLoading());
+
+          emit(PartnerMessageFetched(model: model, uername: event.username));
+        } catch (e) {
+          emit(const UserMessageAddedToTableFailed(
+              message: 'Could not retreive message'));
+        }
       }
     });
   }

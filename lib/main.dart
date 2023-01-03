@@ -3,6 +3,7 @@ import 'package:chat_app/frontend/auth/repository/repository.dart';
 import 'package:chat_app/frontend/auth/screens/login.dart';
 import 'package:chat_app/frontend/auth/screens/signup.dart';
 import 'package:chat_app/frontend/auth/screens/splash.dart';
+import 'package:chat_app/frontend/chat/screens/chat_screen.dart';
 import 'package:chat_app/frontend/home/bloc/home_bloc.dart';
 import 'package:chat_app/frontend/home/repository/repository.dart';
 import 'package:chat_app/frontend/home/screens/homepage.dart';
@@ -99,7 +100,8 @@ class _MyAppState extends State<MyApp> {
           '/login': (context) => const Login(),
           '/signup': (context) => const SignUp(),
           '/home': (context) => const HomePage(),
-          '/userDetail': (context) => const UserDetail()
+          '/userDetail': (context) => const UserDetail(),
+          'chatScreen': (context) => const ChatScreen(partnerUsername: '')
         },
       ),
     );
