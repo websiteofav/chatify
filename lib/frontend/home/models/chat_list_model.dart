@@ -8,6 +8,8 @@ class ChatListFields {
   static const String typeOfMessage = "type_of_message";
   static const String read = "read";
   static const String senderUsername = "sender_username";
+  static const String partnerProfilePicURL = "partner_profile_pic_url";
+  static const String partnerProfilePicPath = "partner_profile_pic_path";
 
   static final List<String> values = [
     username,
@@ -29,6 +31,8 @@ class ChatListModel {
   final String typeOfMessage;
   bool read;
   final String senderUsername;
+  final String partnerProfilePicURL;
+  final String partnerProfilePicPath;
 
   ChatListModel({
     required this.latestMessage,
@@ -38,6 +42,8 @@ class ChatListModel {
     required this.typeOfMessage,
     required this.read,
     required this.senderUsername,
+    required this.partnerProfilePicURL,
+    required this.partnerProfilePicPath,
   });
 
   Map<String, Object?> toJson() => {
@@ -58,5 +64,9 @@ class ChatListModel {
         typeOfMessage: json[ChatListFields.typeOfMessage] as String,
         read: json[ChatListFields.read] as bool,
         senderUsername: json[ChatListFields.senderUsername] as String,
+        partnerProfilePicPath:
+            json[ChatListFields.partnerProfilePicPath] as String,
+        partnerProfilePicURL:
+            json[ChatListFields.partnerProfilePicURL] as String,
       );
 }

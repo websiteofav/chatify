@@ -41,35 +41,53 @@ class _AboutState extends State<About> {
               textAlign: TextAlign.center,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20),
+          const Padding(
+            padding: EdgeInsets.all(20),
             child: Text(
-              "Now is the winter of our discontent Made glorious summer by this sun of York; And all the clouds that lour'd upon our house In the deep bosom of the ocean buried. Now are our brows bound with victorious wreaths; Our bruised arms hung up for monuments",
+              "Chatify is a messaging app where people can connect with each other and send text, images, videos, location, documents and audio messages among other things.",
               style: TextStyle(color: AppColors.textColor5, fontSize: 20),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 30,
           ),
           Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             alignment: Alignment.centerRight,
             child: RichText(
-                text: TextSpan(
+                text: const TextSpan(
               children: <TextSpan>[
                 TextSpan(
                     text: 'Created by \n',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: AppColors.shadowColor1)),
-                const TextSpan(
+                TextSpan(
                     text: 'Avinash',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: AppColors.logout,
-                        fontSize: 25)),
+                        fontSize: 22)),
               ],
             )),
+          ),
+          Container(
+            padding: const EdgeInsets.only(right: 20),
+            alignment: Alignment.centerRight,
+            child: const Text('7550169761',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.logout,
+                    fontSize: 22)),
+          ),
+          Container(
+            padding: const EdgeInsets.only(right: 20),
+            alignment: Alignment.centerRight,
+            child: const Text('avinashupadhyay56@gmail.com',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.logout,
+                    fontSize: 22)),
           ),
         ],
       )),

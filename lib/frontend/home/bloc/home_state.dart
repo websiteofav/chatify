@@ -70,14 +70,32 @@ class UserMessageAddedToTableFailed extends HomeState {
 class PartnerMessageFetched extends HomeState {
   final List<ChatMessageModel> model;
   final String uername;
-  const PartnerMessageFetched({required this.model, required this.uername});
+  final String? profilePicUrl;
+  const PartnerMessageFetched(
+      {required this.model, required this.uername, this.profilePicUrl});
   @override
-  List<Object> get props => [model];
+  List<Object> get props => [model, uername, profilePicUrl!];
 }
 
 class PartnerMessageFetchedFailed extends HomeState {
   final String message;
   const PartnerMessageFetchedFailed({required this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class UserPrimaryDataFetched extends HomeState {
+  final UserPrimaryModel model;
+  const UserPrimaryDataFetched({
+    required this.model,
+  });
+  @override
+  List<Object> get props => [model];
+}
+
+class UserPrimaryDataFetchedFailed extends HomeState {
+  final String message;
+  const UserPrimaryDataFetchedFailed({required this.message});
   @override
   List<Object> get props => [message];
 }

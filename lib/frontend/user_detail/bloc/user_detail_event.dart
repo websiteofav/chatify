@@ -113,3 +113,22 @@ class UploadFileToFirebaseStorageEvent extends UserDetailEvent {
   @override
   List<Object> get props => [filePath, reference];
 }
+
+class UpdateProfileImageUrlEvent extends UserDetailEvent {
+  final String downloadUrl;
+  const UpdateProfileImageUrlEvent({required this.downloadUrl});
+
+  @override
+  List<Object> get props => [
+        downloadUrl,
+      ];
+}
+
+class FetchUserDataEvent extends UserDetailEvent {
+  final String email;
+  final bool parse;
+  const FetchUserDataEvent({required this.email, required this.parse});
+
+  @override
+  List<Object> get props => [email, parse];
+}

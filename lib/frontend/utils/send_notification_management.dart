@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:chat_app/frontend/utils/apis.dart';
 import 'package:chat_app/frontend/utils/enums.dart';
+import 'package:chat_app/frontend/utils/environment.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 
@@ -59,8 +61,7 @@ class SendNotifications {
       required String title,
       required String body}) async {
     try {
-      const String serverKey =
-          "AAAAaDDxqtk:APA91bFy2pvlXpLjpYu7J3yMVvrOaBbdNHohCAfHm2zWNtZuYNIjAFHz6rley13M_DgLzHtPtjto2ONYum84c8TfbdDmMztCUXY8Nz0ySGpK6q80o1eVMhjpOMaNYeczKmq83Y-U5iHn";
+      String serverKey = Environment.firebaseNotificationKey;
 
       final http.Response response =
           await http.post(Uri.parse(API.sendNotifications),

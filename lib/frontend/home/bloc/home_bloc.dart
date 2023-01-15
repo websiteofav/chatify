@@ -112,10 +112,26 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               await repository.queryMessageInUserTable(event.username);
           emit(HomeLoading());
 
-          emit(PartnerMessageFetched(model: model, uername: event.username));
+          emit(PartnerMessageFetched(
+              model: model,
+              uername: event.username,
+              profilePicUrl: event.profilePicUrl));
         } catch (e) {
           emit(const UserMessageAddedToTableFailed(
               message: 'Could not retreive message'));
+        }
+      } else if (event is FetchUserPrimaryDataEvent) {
+        // emit(HomeLoading());
+        try {
+          UserPrimaryModel model = await repository.getUserPrimarytData();
+          emit(HomeLoading());
+
+          emit(UserPrimaryDataFetched(
+            model: model,
+          ));
+        } catch (e) {
+          emit(const UserPrimaryDataFetchedFailed(
+              message: 'Could not load data'));
         }
       }
     });

@@ -11,17 +11,22 @@ class CustomTextField extends StatelessWidget {
 
   final String hintText;
   final ValueChanged<String>? onChange;
-  const CustomTextField({
-    Key? key,
-    this.maxlines = 1,
-    this.height = 100,
-    this.expands = false,
-    this.keyboard = TextInputType.emailAddress,
-    required this.validator,
-    required this.textController,
-    required this.hintText,
-    required this.onChange,
-  }) : super(key: key);
+  final bool obscureText;
+
+  final Widget? suffixIcon;
+  const CustomTextField(
+      {Key? key,
+      this.maxlines = 1,
+      this.height = 100,
+      this.expands = false,
+      this.keyboard = TextInputType.emailAddress,
+      required this.validator,
+      required this.textController,
+      required this.hintText,
+      required this.onChange,
+      this.suffixIcon,
+      this.obscureText = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +37,7 @@ class CustomTextField extends StatelessWidget {
       width: dimensions[1] * 0.8,
       height: height,
       child: TextFormField(
+        obscureText: obscureText,
         expands: expands,
         maxLines: maxlines,
         onChanged: onChange,
@@ -40,6 +46,7 @@ class CustomTextField extends StatelessWidget {
         validator: validator,
         style: const TextStyle(color: Colors.blue),
         decoration: InputDecoration(
+          suffixIcon: suffixIcon,
           hintText: hintText,
           hintStyle:
               TextStyle(fontWeight: FontWeight.bold, color: Colors.orange[200]),

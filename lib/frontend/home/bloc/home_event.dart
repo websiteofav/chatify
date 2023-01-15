@@ -60,12 +60,14 @@ class InserMessageToTableEvent extends HomeEvent {
 
 class FetchUserPartnerMessageEvent extends HomeEvent {
   final String username;
-  const FetchUserPartnerMessageEvent({
-    required this.username,
-  });
+  final String? profilePicUrl;
+  const FetchUserPartnerMessageEvent(
+      {required this.username, this.profilePicUrl});
 
   @override
   List<Object> get props => [
         username,
       ];
 }
+
+class FetchUserPrimaryDataEvent extends HomeEvent {}

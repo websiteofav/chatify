@@ -272,8 +272,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             .map((message) => messageDates
                                 .add(message[ChatMessageFields.date]))
                             .toList();
-
-                        setState(() {});
+                        if (mounted) {
+                          setState(() {});
+                        }
                       }
                     }).toList();
                   });
@@ -1117,57 +1118,107 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               transitionType: ContainerTransitionType.fadeThrough,
               openBuilder: (context, openWidget) {
-                return ImageView(
-                    imagePath: _allMessages[index].message // image path
-                    // imageProviderCategory: ImageProvider.FileImage,
-                    );
+                if (_allMessages[index].typeOfMessage ==
+                    ChatMessageTypes.image.toString()) {
+                  return ImageView(
+                      imagePath: _allMessages[index].message // image path
+                      // imageProviderCategory: ImageProvider.FileImage,
+                      );
+                }
+
+                return Container();
               },
+              // if (_allMessages[index].typeOfMessage ==
+              //         ChatMessageTypes.video.toString()) {
+              //       final openResult =
+              //           await OpenFile.open(_allMessages[index].message);
+              //       _openedFileResult(openResult);
+              //     }
               closedBuilder: (context, closedWidget) {
-                return Stack(
-                  children: [
-                    Container(
-                      alignment: Alignment.center,
-                      child: PhotoView(
-                        enableRotation: true,
-                        minScale: PhotoViewComputedScale.covered,
-                        loadingBuilder: (ctx, event) => const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                        errorBuilder: (ctx, obj, stackTrace) => Container(
-                          alignment: Alignment.center,
-                          child: const Text('Could not load image',
-                              style: TextStyle(
-                                color: AppColors.white,
-                                fontSize: 20,
-                              )),
-                        ),
-                        imageProvider: _allMessages[index].typeOfMessage ==
-                                ChatMessageTypes.image.toString()
-                            ? FileImage(
-                                File(_allMessages[index].message.toString()))
-                            : FileImage(File(
-                                _allMessages[index].thumbnailPath.toString())),
-                      ),
-                    ),
-                    if (_allMessages[index].typeOfMessage ==
-                        ChatMessageTypes.video.toString())
-                      GestureDetector(
+                return _allMessages[index].typeOfMessage ==
+                        ChatMessageTypes.video.toString()
+                    ? InkWell(
                         onTap: () async {
                           final openResult =
                               await OpenFile.open(_allMessages[index].message);
                           _openedFileResult(openResult);
                         },
-                        child: Center(
-                          child: Icon(Icons.play_arrow_rounded,
-                              size: 50,
-                              color: AppColors.white,
-                              shadows: const [
-                                Shadow(color: AppColors.black, blurRadius: 15.0)
-                              ]),
+                        child: Stack(
+                          children: [
+                            Container(
+                              alignment: Alignment.center,
+                              child: PhotoView(
+                                enableRotation: true,
+                                maxScale: PhotoViewComputedScale.covered,
+                                minScale: PhotoViewComputedScale.covered,
+                                loadingBuilder: (ctx, event) => const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                                errorBuilder: (ctx, obj, stackTrace) =>
+                                    Container(
+                                  alignment: Alignment.center,
+                                  child: const Text('Could not load image',
+                                      style: TextStyle(
+                                        color: AppColors.white,
+                                        fontSize: 20,
+                                      )),
+                                ),
+                                imageProvider: _allMessages[index]
+                                            .typeOfMessage ==
+                                        ChatMessageTypes.image.toString()
+                                    ? FileImage(File(
+                                        _allMessages[index].message.toString()))
+                                    : FileImage(File(_allMessages[index]
+                                        .thumbnailPath
+                                        .toString())),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                final openResult = await OpenFile.open(
+                                    _allMessages[index].message);
+                                _openedFileResult(openResult);
+                              },
+                              child: Center(
+                                child: Icon(Icons.play_arrow_rounded,
+                                    size: 50,
+                                    color: AppColors.white,
+                                    shadows: const [
+                                      Shadow(
+                                          color: AppColors.black,
+                                          blurRadius: 15.0)
+                                    ]),
+                              ),
+                            )
+                          ],
                         ),
                       )
-                  ],
-                );
+                    : Container(
+                        alignment: Alignment.center,
+                        child: PhotoView(
+                          enableRotation: true,
+                          maxScale: PhotoViewComputedScale.covered,
+                          minScale: PhotoViewComputedScale.covered,
+                          loadingBuilder: (ctx, event) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          errorBuilder: (ctx, obj, stackTrace) => Container(
+                            alignment: Alignment.center,
+                            child: const Text('Could not load image',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 20,
+                                )),
+                          ),
+                          imageProvider: _allMessages[index].typeOfMessage ==
+                                  ChatMessageTypes.image.toString()
+                              ? FileImage(
+                                  File(_allMessages[index].message.toString()))
+                              : FileImage(File(_allMessages[index]
+                                  .thumbnailPath
+                                  .toString())),
+                        ),
+                      );
               },
             )),
         // _conversationMessageTime(
@@ -1186,7 +1237,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   bottom: 5.0,
                   top: 5.0,
                 ),
-          child: _timeWidget(_allMessages[index].time),
+          child: _timeWidget(_allMessages[index].time,
+              show: _allMessages[index].messageHolder != widget.partnerUsername,
+              date: _allMessages[index].date),
         )
       ],
     );
@@ -1390,7 +1443,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 bottom: 5.0,
                 top: 5.0,
               ),
-        child: _timeWidget(_allMessages[index].time),
+        child: _timeWidget(_allMessages[index].time,
+            show: _allMessages[index].messageHolder != widget.partnerUsername,
+            date: _allMessages[index].date),
       )
     ]);
   }
@@ -1541,7 +1596,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 bottom: 5.0,
                 top: 5.0,
               ),
-        child: _timeWidget(_allMessages[index].time),
+        child: _timeWidget(_allMessages[index].time,
+            show: _allMessages[index].messageHolder != widget.partnerUsername,
+            date: _allMessages[index].date),
       )
     ]);
   }
@@ -1704,7 +1761,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 bottom: 5.0,
                 top: 5.0,
               ),
-        child: _timeWidget(_allMessages[index].time),
+        child: _timeWidget(_allMessages[index].time,
+            show: _allMessages[index].messageHolder != widget.partnerUsername,
+            date: _allMessages[index].date),
       )
     ]);
   }

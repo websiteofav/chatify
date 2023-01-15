@@ -20,6 +20,7 @@ class AppColors {
   static const Color shadowColor1 = Color(0xFFC3B1B1);
 
   static const Color logout = Color(0xffff0000);
+  static const Color bancgroundColor1 = Color.fromARGB(255, 232, 120, 14);
 
   static const Color backgroundColor3 = Color(0xFF169616);
 

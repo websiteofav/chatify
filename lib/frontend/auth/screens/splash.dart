@@ -33,7 +33,7 @@ class _SplashState extends State<Splash> {
     return BlocListener<UserDetailBloc, UserDetailState>(
       listener: (context, state) {
         if (state is UserDetalsExists) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => const HomePage(),
@@ -41,7 +41,7 @@ class _SplashState extends State<Splash> {
           );
         } else if (state is UserDetailError) {
           if (state.message.contains('user')) {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => const SignUp(),

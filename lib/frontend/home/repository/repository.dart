@@ -89,9 +89,6 @@ class HomeRepository {
     final String currentDate = userData['creation_date'];
     final String currentTime = userData['creation_time'];
     try {
-      model.accountCreationDate = currentDate;
-      model.accountCreationTime = currentTime;
-      model.token = token.toString();
       Database? db = await database;
 
       int result;
@@ -102,6 +99,9 @@ class HomeRepository {
             whereArgs: [model.userName]);
 
         if (count.isEmpty) {
+          model.accountCreationDate = currentDate;
+          model.accountCreationTime = currentTime;
+          model.token = token.toString();
           result = await db.insert(
               Constants.userPrimaryDetailsSQLDatabse, model.toJson());
         } else {
@@ -112,6 +112,8 @@ class HomeRepository {
             whereArgs: [model.userName],
           );
         }
+
+        debugPrint(result.toString());
 
         return true;
       } else {
@@ -272,8 +274,13 @@ class HomeRepository {
 
       return model;
     } catch (e) {
-      debugPrint(e.toString());
-      rethrow;
+      if (e.toString().contains(uername)) {
+        await createMessageTable(uername);
+        List<ChatMessageModel> model = [];
+        return model;
+      } else {
+        rethrow;
+      }
     }
   }
 }

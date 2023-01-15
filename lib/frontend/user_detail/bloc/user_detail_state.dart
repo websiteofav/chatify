@@ -146,3 +146,26 @@ class FileUploadedToStorageFaield extends UserDetailState {
   @override
   List<Object> get props => [message];
 }
+
+class UpdateProfileImage extends UserDetailState {}
+
+class UpdateProfileImageFaield extends UserDetailState {
+  final String message;
+  const UpdateProfileImageFaield({required this.message});
+  @override
+  List<Object> get props => [message];
+}
+
+class CurrentUserDataFetched extends UserDetailState {
+  final UserDetailsModel model;
+  const CurrentUserDataFetched({required this.model});
+  @override
+  List<Object> get props => [model];
+}
+
+class CurrentUserDataFetchedFaield extends UserDetailState {
+  final String message;
+  const CurrentUserDataFetchedFaield({required this.message});
+  @override
+  List<Object> get props => [message];
+}

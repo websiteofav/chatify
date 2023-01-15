@@ -225,6 +225,29 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
           emit(const FileUploadedToStorageFaield(
               message: 'Messages could not be retrieved'));
         }
+      } else if (event is UpdateProfileImageUrlEvent) {
+        emit(UserDetailLoading());
+        try {
+          bool result =
+              await repository.updateProfileImageUrl(event.downloadUrl);
+
+          result == true
+              ? emit(UpdateProfileImage())
+              : emit(const UpdateProfileImageFaield(
+                  message: 'Something went wrong'));
+        } catch (e) {
+          emit(UpdateProfileImageFaield(message: e.toString()));
+        }
+      } else if (event is FetchUserDataEvent) {
+        emit(UserDetailLoading());
+        try {
+          UserDetailsModel result = await repository.getCurrentUserData(
+              email: event.email, parse: event.parse);
+
+          emit(CurrentUserDataFetched(model: result));
+        } catch (e) {
+          emit(CurrentUserDataFetchedFaield(message: e.toString()));
+        }
       }
     });
   }

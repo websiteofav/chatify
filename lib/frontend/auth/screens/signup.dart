@@ -15,7 +15,9 @@ import 'package:chat_app/frontend/home/screens/homepage.dart';
 import 'package:chat_app/frontend/user_detail/bloc/user_detail_bloc.dart';
 import 'package:chat_app/frontend/user_detail/repository/repository.dart';
 import 'package:chat_app/frontend/user_detail/screens/user_detail.dart';
+import 'package:chat_app/frontend/utils/colors.dart';
 import 'package:chat_app/frontend/utils/device_dimensions.dart';
+import 'package:chat_app/frontend/utils/environment.dart';
 import 'package:chat_app/frontend/utils/image_path.dart';
 import 'package:chat_app/frontend/utils/validators.dart';
 import 'package:chat_app/frontend/widgets/custom_textfield.dart';
@@ -40,6 +42,8 @@ class _SignUpState extends State<SignUp> {
   final _confirmPasswordEditingController = TextEditingController();
   // final _nameEditingController = TextEditingController();
   // final _mobileNumberEditingController = TextEditingController();
+
+  bool showPassword = false;
 
   final _formKey = GlobalKey<FormState>();
   final LoadingOverlay _loadingOverlay = LoadingOverlay();
@@ -86,11 +90,24 @@ class _SignUpState extends State<SignUp> {
             }));
           } else if (state is GoogleSignInLoaded) {
             // _loadingOverlay.hide();
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) {
+              return const HomePage();
+            }));
+            // Navigator.popAndPushNamed(context, '/about');
+          } else if (state is AuthError) {
+            _loadingOverlay.hide();
+            CoolAlert.show(
+              context: context,
+              type: CoolAlertType.error,
+              text: state.message,
+            );
+          } else if (state is LoginLoaded) {
+            _loadingOverlay.hide();
             BlocProvider.of<UserDetailBloc>(context).add(
               const UserRecordEvent(),
             );
-            // Navigator.popAndPushNamed(context, '/about');
-          } else if (state is AuthError) {
+          } else if (state is LoginError) {
             _loadingOverlay.hide();
             CoolAlert.show(
               context: context,
@@ -183,6 +200,19 @@ class _SignUpState extends State<SignUp> {
                         //   },
                         // ),
                         CustomTextField(
+                          obscureText: !showPassword,
+                          suffixIcon: GestureDetector(
+                            onTap: (() => setState(() {
+                                  showPassword = !showPassword;
+                                })),
+                            child: Icon(
+                              showPassword
+                                  ? Icons.lock_open_rounded
+                                  : Icons.lock_clock_rounded,
+                              color: AppColors.white,
+                              size: 20,
+                            ),
+                          ),
                           hintText: 'Password',
                           onChange: (value) {
                             _passwordEditingController.text = value;
@@ -192,9 +222,17 @@ class _SignUpState extends State<SignUp> {
                                         .text.length));
                           },
                           textController: _passwordEditingController,
-                          validator: (value) {},
+                          validator: (value) {
+                            if (_passwordEditingController.text.trim().length <
+                                6) {
+                              return 'Password length should be greater than or equal to 6';
+                            } else {
+                              return null;
+                            }
+                          },
                         ),
                         CustomTextField(
+                          obscureText: true,
                           hintText: 'Confirm Password',
                           onChange: (value) {
                             _confirmPasswordEditingController.text = value;
@@ -259,17 +297,17 @@ class _SignUpState extends State<SignUp> {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        const Text(
-                          'Or Login with',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        socialMediaAuth(dimensions),
+                        // const SizedBox(
+                        //   height: 15,
+                        // ),
+                        // const Text(
+                        //   'Or Login with',
+                        //   style: TextStyle(
+                        //       color: Colors.white,
+                        //       fontSize: 15,
+                        //       fontWeight: FontWeight.w500),
+                        // ),
+                        // socialMediaAuth(dimensions),
                         const SizedBox(
                           height: 15,
                         ),
@@ -298,6 +336,42 @@ class _SignUpState extends State<SignUp> {
                         ),
                         const SizedBox(
                           height: 15,
+                        ),
+
+                        Container(
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(40),
+                            ),
+                          ),
+                          width: dimensions[1] * 0.4,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // if (_formKey.currentState!.validate()) {
+                              //   BlocProvider.of<AuthBloc>(context).add(
+                              //     SignupEvent(
+                              //         email: _emailEditingController.text,
+                              //         password:
+                              //             _passwordEditingController.text),
+                              //   );
+                              // }
+
+                              BlocProvider.of<AuthBloc>(context).add(
+                                LoginEvent(
+                                    email: Environment.testUserEmail,
+                                    password: Environment.testUserPassword),
+                              );
+                            },
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.orange)),
+                            child: const Text('Login as test user',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                                textAlign: TextAlign.center),
+                          ),
                         ),
                       ],
                     ),

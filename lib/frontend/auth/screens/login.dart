@@ -13,6 +13,7 @@ import 'package:chat_app/frontend/home/screens/homepage.dart';
 import 'package:chat_app/frontend/user_detail/bloc/user_detail_bloc.dart';
 import 'package:chat_app/frontend/user_detail/repository/repository.dart';
 import 'package:chat_app/frontend/user_detail/screens/user_detail.dart';
+import 'package:chat_app/frontend/utils/colors.dart';
 import 'package:chat_app/frontend/utils/device_dimensions.dart';
 import 'package:chat_app/frontend/utils/image_path.dart';
 import 'package:chat_app/frontend/utils/validators.dart';
@@ -35,6 +36,7 @@ class _LoginState extends State<Login> {
   final _emailEditingController = TextEditingController();
   final _passwordEditingController = TextEditingController();
   final LoadingOverlay _loadingOverlay = LoadingOverlay();
+  bool showPassword = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -171,6 +173,19 @@ class _LoginState extends State<Login> {
                           },
                         ),
                         CustomTextField(
+                          obscureText: !showPassword,
+                          suffixIcon: GestureDetector(
+                            onTap: (() => setState(() {
+                                  showPassword = !showPassword;
+                                })),
+                            child: Icon(
+                              showPassword
+                                  ? Icons.lock_open_rounded
+                                  : Icons.lock_clock_rounded,
+                              color: AppColors.white,
+                              size: 20,
+                            ),
+                          ),
                           hintText: 'Password',
                           onChange: null,
                           textController: _passwordEditingController,

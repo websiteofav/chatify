@@ -133,13 +133,21 @@ class UserRepository {
     }
   }
 
-  Future<dynamic> getCurrentUserData({required email}) async {
+  Future<dynamic> getCurrentUserData(
+      {required email, bool parse = false}) async {
     try {
       final currentUserData = await FirebaseFirestore.instance
           .doc('${Constants.userDetailCollectionName}/$email')
           .get();
 
-      return currentUserData.data();
+      if (parse) {
+        final UserDetailsModel firebaseModel = UserDetailsModel.fromJson(
+            currentUserData.data() as Map<String, dynamic>);
+
+        return firebaseModel;
+      } else {
+        return currentUserData.data();
+      }
     } catch (e) {
       debugPrint(e.toString());
       rethrow;
@@ -151,7 +159,8 @@ class UserRepository {
   }) async {
     try {
       final currentUserData = await getCurrentUserData(email: email);
-      final List paretnerRequests = currentUserData["partner_requests"];
+      final List paretnerRequests =
+          currentUserData[UserDetailsFields.partnerRequests];
 
       return paretnerRequests;
     } catch (e) {
@@ -354,25 +363,24 @@ class UserRepository {
     }
   }
 
-  // Future<String?> getConnectedPartners(File filePath, reference) async {
-  //   try {
-  //     String? url;
+  Future<bool> updateProfileImageUrl(String profilePicUrl) async {
+    try {
+      final String? token = await FirebaseMessaging.instance.getToken();
+      final String currentDate =
+          DateFormat('dd-MM-yyyy').format(DateTime.now());
+      final String currentTime = DateFormat('hh:mm:ss').format(DateTime.now());
 
-  //     final String fileName =
-  //         '${FirebaseAuth.instance.currentUser!.uid}${DateTime.now().day}${DateTime.now().month}${DateTime.now().year}${DateTime.now().hour}${DateTime.now().minute}${DateTime.now().second}${DateTime.now().millisecond}';
+      await FirebaseFirestore.instance
+          .doc(
+              '${Constants.userDetailCollectionName}/${FirebaseAuth.instance.currentUser!.email.toString()}')
+          .update({
+        UserDetailsFields.profilePic: profilePicUrl,
+      });
 
-  //     final Reference fbStoragereference =
-  //         FirebaseStorage.instance.ref(reference).child(fileName);
-
-  //     final UploadTask uploadTask = fbStoragereference.putFile(filePath);
-
-  //     await uploadTask.whenComplete(
-  //         () async => url = await fbStoragereference.getDownloadURL());
-
-  //     return url!;
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //     rethrow;
-  //   }
-  // }
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      rethrow;
+    }
+  }
 }
