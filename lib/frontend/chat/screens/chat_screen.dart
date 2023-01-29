@@ -30,7 +30,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_viewer_plugin/pdf_viewer_plugin.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -39,6 +38,7 @@ import 'package:record/record.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:open_filex/open_filex.dart';
 
 // impor;
 
@@ -481,8 +481,6 @@ class _ChatScreenState extends State<ChatScreen> {
       debugPrint(e.toString());
     }
   }
-
-  void _manageIcomingLocationMessage(ChatMessageModel chatMessageModel) {}
 
   Widget _emojiPicker() {
     return SizedBox(
@@ -1140,7 +1138,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ? InkWell(
                         onTap: () async {
                           final openResult =
-                              await OpenFile.open(_allMessages[index].message);
+                              await OpenFilex.open(_allMessages[index].message);
                           _openedFileResult(openResult);
                         },
                         child: Stack(
@@ -1175,7 +1173,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                             GestureDetector(
                               onTap: () async {
-                                final openResult = await OpenFile.open(
+                                final openResult = await OpenFilex.open(
                                     _allMessages[index].message);
                                 _openedFileResult(openResult);
                               },
@@ -1387,7 +1385,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       GestureDetector(
                         onTap: () async {
                           final OpenResult openResult =
-                              await OpenFile.open(_allMessages[index].message);
+                              await OpenFilex.open(_allMessages[index].message);
                           _openedFileResult(openResult);
                         },
                         child: Center(
@@ -1403,7 +1401,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 : GestureDetector(
                     onTap: () async {
                       final OpenResult openResult =
-                          await OpenFile.open(_allMessages[index].message);
+                          await OpenFilex.open(_allMessages[index].message);
                       _openedFileResult(openResult);
                     },
                     child: Row(children: [
@@ -1455,6 +1453,8 @@ class _ChatScreenState extends State<ChatScreen> {
       final Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.bestForNavigation);
 
+      print(position);
+
       final Marker marker = Marker(
           markerId: MarkerId('location'),
           zIndex: 2,
@@ -1462,6 +1462,8 @@ class _ChatScreenState extends State<ChatScreen> {
           position: LatLng(position.latitude, position.longitude));
 
       final currentTime = '${DateTime.now().hour}:${DateTime.now().minute}';
+
+      print(marker);
 
       showDialog(
           context: context,
@@ -1518,12 +1520,12 @@ class _ChatScreenState extends State<ChatScreen> {
                           position.latitude,
                           position.longitude,
                         ),
-                        zoom: 20),
+                        zoom: 14),
                   ),
                 )),
               ));
     } catch (e) {
-      foundation.debugPrint(e.toString());
+      debugPrint('Error: ${e.toString()}');
     }
   }
 

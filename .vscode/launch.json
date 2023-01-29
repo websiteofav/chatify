@@ -14,6 +14,7 @@
       "request": "launch",
       "type": "dart",
       "deviceId": "emulator-5554"
+      // "flutterMode": "profile"
     },
     {
       "name": "Android2",
@@ -25,7 +26,15 @@
       "name": "Mobile",
       "request": "launch",
       "type": "dart",
-      "deviceId": "1118179f"
+      "deviceId": "1118179f",
+      "flutterMode": "release"
+    },
+    {
+      "name": "86_64",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "emulator-5554"
+      // "flutterMode": "release"
     }
   ],
   "compounds": [

@@ -15,7 +15,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -145,8 +145,8 @@ class _ProfileState extends State<Profile> {
                                     width: dimensions[1] * 0.2,
                                     top: dimensions[0] * 0.25,
                                     child: InkWell(
-                                      onTap: () async =>
-                                          await OpenFile.open(profileImagePath),
+                                      onTap: () async => await OpenFilex.open(
+                                          profileImagePath),
                                       onLongPress: () => _imagePicker(),
                                       child: CircleAvatar(
                                         backgroundImage: FileImage(
